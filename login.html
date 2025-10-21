@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar - JF Semi Joias</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* === Formulário de Login === */
+    #login-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 60px 0;
+    }
+
+    .login-container {
+      background: #fff;
+      border-radius: 15px;
+      padding: 40px 35px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .login-container h2 {
+      color: #ff4b8f;
+      margin-bottom: 25px;
+    }
+
+    .login-container input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 2px solid #ffe4ec;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.2s ease;
+    }
+
+    .login-container input:focus {
+      border-color: #ff6fa7;
+      outline: none;
+    }
+
+    .login-container button {
+      width: 100%;
+      background-color: #ff6fa7;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .login-container button:hover {
+      background-color: #ff4b8f;
+      transform: scale(1.03);
+    }
+
+    .secundario-btn {
+      background-color: transparent;
+      color: #ff6fa7;
+      border: 2px solid #ff6fa7;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .secundario-btn:hover {
+      background-color: #ff6fa7;
+      color: #fff;
+      transform: scale(1.03);
+    }
+  </style>
+</head>
+
+<body>
+  <nav id="faixa-categorias">
+    <div class="categorias">
+      <a href="index.html" class="categoria">Conjuntos</a>
+      <a href="index.html" class="categoria">Pulseiras</a>
+      <a href="index.html" class="categoria">Brincos</a>
+    </div>
+
+    <div class="busca">
+      <input type="text" placeholder="Digite aqui o que procura..." />
+      <button id="botao-buscar">
+        <img src="./icons/search.svg" width="20" alt="Buscar" />
+      </button>
+    </div>
+  </nav>
+
+  <header>
+    <h1>JF Semi Joias</h1>
+    <p>Entre para acessar sua conta</p>
+    <button id="botao-carrinho" onclick="window.location.href='carrinho.html'" title="Carrinho">
+      <img src="./icons/cart.svg" alt="Carrinho" />
+      <span id="contador-carrinho">0</span>
+    </button>
+  </header>
+
+  <div id="bolhas-menu">
+    <button class="bolha" onclick="window.location.href='login.html'" title="Entrar / Conta">
+      <img src="icons/user.svg" alt="Login" width="26" />
+    </button>
+    <button class="bolha" onclick="window.location.href='meus-pedidos.html'" title="Meus pedidos">
+      <img src="icons/box.svg" alt="Pedidos" width="26" />
+    </button>
+    <button class="bolha" onclick="window.location.href='favoritos.html'" title="Favoritos">
+      <img src="icons/star.svg" alt="Favoritos" width="26" />
+    </button>
+  </div>
+
+  <section id="login-section">
+    <div class="login-container">
+      <h2>Entrar</h2>
+      <input type="email" id="email" placeholder="Seu e-mail" required />
+      <input type="password" id="senha" placeholder="Sua senha" required />
+      <button id="btnLogin">Entrar</button>
+
+      <button class="secundario-btn" onclick="window.location.href='forgot-password.html'">Esqueceu sua senha?</button>
+      <button class="secundario-btn" onclick="window.location.href='cadastro.html'">Criar conta</button>
+    </div>
+  </section>
+
+  <footer>
+    <p>© 2025 JF Semi Joias - Todos os direitos reservados</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const API = "http://localhost:5000";
+
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+
+      if (!email || !senha) {
+        Swal.fire({ icon: "warning", title: "Preencha todos os campos!", confirmButtonColor: "#ff6fa7" });
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API}/auth/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, senha })
+        });
+
+        const data = await resp.json();
+
+        if (resp.ok && data.token) {
+          localStorage.setItem("token", data.token);
+          Swal.fire({
+            icon: "success",
+            title: "Login realizado com sucesso!",
+            confirmButtonColor: "#ff6fa7",
+            timer: 1200,
+            showConfirmButton: false
+          }).then(() => window.location.href = "index.html");
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Erro no login",
+            text: data.erro || "E-mail ou senha inválidos",
+            confirmButtonColor: "#ff6fa7"
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Falha na conexão",
+          text: "Não foi possível conectar ao servidor.",
+          confirmButtonColor: "#ff6fa7"
+        });
+      }
+    });
+  </script>
+</body>
+</html>

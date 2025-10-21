@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favoritos - JF Semi Joias</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Produtos Favoritados</h1>
+    <button id="botao-carrinho" onclick="window.location.href='carrinho.html'">
+      <img src="./icons/cart.svg" alt="Carrinho">
+      <span id="contador-carrinho">0</span>
+    </button>
+  </header>
+
+  <div id="bolhas-menu">
+    <button class="bolha" id="botao-login" title="Conta"><img src="icons/user.svg" alt="Login"></button>
+    <button class="bolha" id="botao-pedidos" title="Meus Pedidos"><img src="icons/box.svg" alt="Pedidos"></button>
+    <button class="bolha" id="botao-favoritos" title="Favoritos"><img src="icons/star.svg" alt="Favoritos"></button>
+  </div>
+
+  <section id="produtos">
+    <h2>Favoritos</h2>
+    <div class="produtos-container" id="listaFavoritos"><p>Carregando favoritos...</p></div>
+  </section>
+
+  <footer><p>© 2025 JF Semi Joias - Todos os direitos reservados</p></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const API = "http://localhost:5000";
+
+    function atualizarContadorCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      document.getElementById('contador-carrinho').textContent = carrinho.length;
+    }
+
+    function inicializarBolhas() {
+      document.getElementById('botao-login')?.addEventListener('click', () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+          Swal.fire({
+            icon: 'info',
+            title: 'Você já está logado',
+            text: 'Deseja sair da conta?',
+            showCancelButton: true,
+            confirmButtonText: 'Sair',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#ff6fa7'
+          }).then(r => {
+            if (r.isConfirmed) {
+              localStorage.removeItem('token');
+              Swal.fire('Deslogado com sucesso', '', 'success');
+            }
+          });
+        } else {
+          window.location.href = 'login.html';
+        }
+      });
+
+      document.getElementById('botao-pedidos')?.addEventListener('click', () => window.location.href = 'meus-pedidos.html');
+      document.getElementById('botao-favoritos')?.addEventListener('click', () => window.location.href = 'favoritos.html');
+    }
+
+    async function carregarFavoritos() {
+      const token = localStorage.getItem("token");
+      atualizarContadorCarrinho();
+
+      if (!token) {
+        Swal.fire({
+          icon: "info",
+          title: "Faça login para ver seus favoritos",
+          confirmButtonColor: "#ff6fa7"
+        }).then(() => window.location.href = "login.html");
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${API}/users/favoritos`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const favoritos = await resp.json();
+        const container = document.getElementById("listaFavoritos");
+
+        if (!favoritos.length) {
+          container.innerHTML = "<p>Você ainda não favoritou nenhum produto.</p>";
+          return;
+        }
+
+        container.innerHTML = favoritos.map(prod => `
+          <div class="produto">
+            <div class="favorito-btn ativo">
+              <img src="icons/star-fill.svg" alt="Favoritado">
+            </div>
+            <img src="${prod.imagens?.[0] || prod.imagem || 'icons/no-image.svg'}" alt="${prod.nome}">
+            <h3>${prod.nome}</h3>
+            <p class="preco">R$ ${prod.preco?.toFixed(2) || "0.00"}</p>
+            <button onclick="removerFavorito('${prod._id}')">Remover</button>
+          </div>
+        `).join('');
+
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Erro ao carregar favoritos",
+          confirmButtonColor: "#ff6fa7"
+        });
+      }
+    }
+
+    async function removerFavorito(id) {
+      const token = localStorage.getItem("token");
+      try {
+        const resp = await fetch(`${API}/users/favoritos/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (resp.ok) carregarFavoritos();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      inicializarBolhas();
+      carregarFavoritos();
+    });
+  </script>
+</body>
+</html>

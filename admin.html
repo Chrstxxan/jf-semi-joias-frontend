@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin - Rastreamento</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="bg-gray-50 text-gray-900 flex flex-col items-center justify-center min-h-screen">
+  <h1 style="font-size: 26px; color: #ff4b8f;">Painel Administrativo - JF Semi Joias</h1>
+  <p style="margin-bottom: 20px;">Cadastre o código de rastreio para o cliente.</p>
+
+  <div style="background: white; padding: 20px 25px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); width: 350px;">
+    <label style="font-weight: bold;">ID do Pedido:</label>
+    <input id="pedidoId" type="text" placeholder="Ex: 68f6944feb1db744ff807d4c" style="width:100%; padding:8px; margin-bottom:12px;">
+
+    <label style="font-weight: bold;">Código de Rastreio:</label>
+    <input id="codigoRastreio" type="text" placeholder="Ex: NX123456789BR" style="width:100%; padding:8px; margin-bottom:12px;">
+
+    <button id="enviarRastreio" style="width:100%; padding:10px; background:#ff4b8f; color:white; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">
+      Enviar e Notificar Cliente
+    </button>
+
+    <p id="statusMsg" style="margin-top:15px; font-size:14px;"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const API = "http://localhost:5000";
+
+    document.getElementById("enviarRastreio").addEventListener("click", async () => {
+      const pedidoId = document.getElementById("pedidoId").value.trim();
+      const codigo = document.getElementById("codigoRastreio").value.trim();
+      const token = localStorage.getItem("token");
+
+      if (!pedidoId || !codigo) {
+        Swal.fire("⚠️ Campos obrigatórios", "Preencha todos os campos!", "warning");
+        return;
+      }
+
+      if (!token) {
+        Swal.fire("⚠️ Não autenticado", "Faça login como admin primeiro!", "error");
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API}/admin/orders/${pedidoId}/rastreio`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ rastreio: codigo }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.erro || "Erro ao cadastrar rastreio");
+
+        Swal.fire("✅ Sucesso!", data.mensagem || "Cliente notificado com sucesso!", "success");
+        document.getElementById("pedidoId").value = "";
+        document.getElementById("codigoRastreio").value = "";
+      } catch (err) {
+        console.error(err);
+        Swal.fire("💥 Erro!", err.message || "Falha ao enviar rastreio.", "error");
+      }
+    });
+  </script>
+</body>
+</html>

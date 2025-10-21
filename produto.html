@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalhes do Produto - JF Semi Joias</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <nav id="faixa-categorias">
+    <div class="categorias">
+      <a href="#" class="categoria">Conjuntos</a>
+      <a href="#" class="categoria">Pulseiras</a>
+      <a href="#" class="categoria">Brincos</a>
+    </div>
+
+    <div class="busca">
+      <input type="text" placeholder="Digite aqui o que procura..." />
+      <button id="botao-buscar" title="Buscar">
+        <img src="icons/search.svg" alt="Buscar" width="20" />
+      </button>
+    </div>
+  </nav>
+
+  <header>
+    <h1>JF Semi Joias</h1>
+    <p>Detalhes do Produto</p>
+    <button id="botao-carrinho" onclick="irParaCarrinho()" title="Carrinho">
+      <img src="icons/cart.svg" alt="Carrinho" />
+      <span id="contador-carrinho">0</span>
+    </button>
+    <div id="bolhas-menu">
+      <button class="bolha" id="botao-login" title="Entrar / Conta">
+        <img src="icons/user.svg" alt="Login" />
+      </button>
+      <button class="bolha" id="botao-pedidos" title="Meus pedidos">
+        <img src="icons/box.svg" alt="Pedidos" />
+      </button>
+      <button class="bolha" id="botao-favoritos" title="Favoritos">
+        <img src="icons/star.svg" alt="Favoritos" />
+      </button>
+    </div>
+  </header>
+
+  <div class="produto-detalhe" id="produto-detalhe">
+    <p>Carregando produto...</p>
+  </div>
+
+  <footer>
+    <p>© 2025 JF Semi Joias - Todos os direitos reservados</p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    const API = "http://localhost:5000";
+    let imagens = [];
+    let indiceAtual = 0;
+
+    function pegarIdProduto() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("id");
+    }
+
+    async function carregarProduto() {
+      const id = pegarIdProduto();
+      const detalheContainer = document.getElementById("produto-detalhe");
+
+      try {
+        const resposta = await fetch(`${API}/produtos/${id}`);
+        const produto = await resposta.json();
+
+        if (!produto || !produto.nome) {
+          detalheContainer.innerHTML = "<p>Produto não encontrado.</p>";
+          return;
+        }
+
+        imagens = produto.imagens;
+        indiceAtual = 0;
+
+        detalheContainer.innerHTML = `
+          <div class="favorito-btn" id="favorito-detalhe" onclick="toggleFavoritoDetalhe()">
+            <img src="icons/star.svg" alt="Favoritar" />
+          </div>
+          <div class="carrossel-container">
+            <button id="prev">❮</button>
+            <img id="imagem-principal" src="${imagens[0]}" alt="${produto.nome}" />
+            <button id="next">❯</button>
+          </div>
+          <h2>${produto.nome}</h2>
+          <p class="descricao">${produto.descricao}</p>
+          <p class="preco-detalhe">R$ ${produto.preco.toFixed(2)}</p>
+          <button class="comprar-btn" onclick="comprar('${produto._id}', '${produto.nome}', ${produto.preco}, '${produto.imagens[0]}')">Comprar</button>
+
+
+        `;
+
+        document.getElementById("prev").onclick = () => {
+          indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
+          document.getElementById("imagem-principal").src = imagens[indiceAtual];
+        };
+        document.getElementById("next").onclick = () => {
+          indiceAtual = (indiceAtual + 1) % imagens.length;
+          document.getElementById("imagem-principal").src = imagens[indiceAtual];
+        };
+
+        verificarFavorito(produto._id);
+      } catch (erro) {
+        console.error("Erro ao carregar produto:", erro);
+        detalheContainer.innerHTML = "<p>Erro ao carregar produto.</p>";
+      }
+    }
+
+    async function verificarFavorito(id) {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      try {
+        const resp = await fetch(`${API}/users/favoritos`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const favoritos = await resp.json();
+
+        const icone = document.querySelector("#favorito-detalhe img");
+        const jaFavoritado = favoritos.some((f) => f._id === id);
+
+        if (jaFavoritado) {
+          icone.src = "icons/star-fill.svg";
+          document.getElementById("favorito-detalhe").style.background = "#ff6fa7";
+        } else {
+          icone.src = "icons/star.svg";
+          document.getElementById("favorito-detalhe").style.background = "#fff";
+        }
+      } catch (err) {
+        console.error("Erro ao verificar favoritos:", err);
+      }
+    }
+
+    async function toggleFavoritoDetalhe() {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        Swal.fire({
+          icon: "warning",
+          title: "Faça login para favoritar",
+          confirmButtonColor: "#ff6fa7",
+        }).then(() => (window.location.href = "login.html"));
+        return;
+      }
+
+      const id = pegarIdProduto();
+      const icone = document.querySelector("#favorito-detalhe img");
+      const ativo = icone.src.includes("star-fill");
+
+      try {
+        if (ativo) {
+          await fetch(`${API}/users/favoritos/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          icone.src = "icons/star.svg";
+          document.getElementById("favorito-detalhe").style.background = "#fff";
+        } else {
+          await fetch(`${API}/users/favoritos`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ produtoId: id }),
+          });
+          icone.src = "icons/star-fill.svg";
+          document.getElementById("favorito-detalhe").style.background = "#ff6fa7";
+        }
+      } catch (err) {
+        console.error("Erro ao favoritar:", err);
+      }
+    }
+
+    function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
+      const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+      carrinho.push({
+        _id: idProduto,   // 👈 salva o ID real do produto
+        nome: nomeProduto,
+        preco: precoProduto,
+        imagem: imagemProduto,
+        quantidade: 1
+      });
+      localStorage.setItem("carrinho", JSON.stringify(carrinho));
+      atualizarContadorCarrinho();
+
+      Swal.fire({
+        title: "Produto adicionado!",
+        html: `
+          <img src="${imagemProduto}" alt="${nomeProduto}" style="width:120px;border-radius:10px;margin-bottom:15px;">
+          <p><b>${nomeProduto}</b> foi adicionado ao carrinho.</p>
+          <p style="font-size: 16px; margin-top: 8px;">R$ ${precoProduto.toFixed(2)}</p>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "Ir para o carrinho",
+        cancelButtonText: "Continuar comprando",
+        confirmButtonColor: "#ff6fa7",
+        cancelButtonColor: "#aaa",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "carrinho.html";
+        }
+      });
+    }
+
+
+    function atualizarContadorCarrinho() {
+      const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+      document.getElementById("contador-carrinho").textContent = carrinho.length;
+    }
+
+    function irParaCarrinho() {
+      window.location.href = "carrinho.html";
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      carregarProduto();
+      atualizarContadorCarrinho();
+    });
+  </script>
+
+  <!-- Corrige bolhas e navbar localmente -->
+  <script>
+    document.getElementById('botao-login')?.addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (token && token.length > 10) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Você já está logado',
+          text: 'Deseja sair da conta?',
+          showCancelButton: true,
+          confirmButtonText: 'Sair',
+          cancelButtonText: 'Cancelar',
+          confirmButtonColor: '#ff6fa7',
+        }).then((res) => {
+          if (res.isConfirmed) {
+            localStorage.removeItem('token');
+            Swal.fire('Deslogado com sucesso', '', 'success');
+          }
+        });
+      } else {
+        window.location.href = 'login.html';
+      }
+    });
+
+    document.getElementById('botao-pedidos')?.addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faça login primeiro',
+          confirmButtonColor: '#ff6fa7',
+        }).then(() => (window.location.href = 'login.html'));
+      } else {
+        window.location.href = 'meus-pedidos.html';
+      }
+    });
+
+    document.getElementById('botao-favoritos')?.addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Faça login para ver seus favoritos',
+          confirmButtonColor: '#ff6fa7',
+        }).then(() => (window.location.href = 'login.html'));
+      } else {
+        window.location.href = 'favoritos.html';
+      }
+    });
+
+    // Navbar
+    document.querySelectorAll('.categoria')?.forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const categoria = link.textContent.trim();
+        window.location.href = `index.html?categoria=${encodeURIComponent(categoria)}`;
+      });
+    });
+
+    document.getElementById('botao-buscar')?.addEventListener('click', () => {
+      const termo = document.querySelector('.busca input').value.trim();
+      if (termo) window.location.href = `index.html?busca=${encodeURIComponent(termo)}`;
+    });
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>

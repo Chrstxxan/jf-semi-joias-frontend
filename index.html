@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JF Semi Joias</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ================================
+       BARRA DE CATEGORIAS + PESQUISA
+       ================================ -->
+  <nav id="faixa-categorias">
+    <div class="categorias">
+      <a href="#" class="categoria">Conjuntos</a>
+      <a href="#" class="categoria">Pulseiras</a>
+      <a href="#" class="categoria">Brincos</a>
+    </div>
+
+    <div class="busca">
+      <input type="text" placeholder="Digite aqui o que procura..." />
+      <button id="botao-buscar" title="Buscar">
+        <img src="icons/search.svg" alt="Buscar" width="20" />
+      </button>
+    </div>
+  </nav>
+
+  <!-- ================================
+       CABEÇALHO
+       ================================ -->
+  <header>
+    <h1>JF Semi Joias</h1>
+    <p>As melhores semi joias para você!</p>
+
+    <!-- Botão fixo de carrinho -->
+    <button id="botao-carrinho" onclick="irParaCarrinho()" title="Carrinho">
+      <img src="icons/cart.svg" alt="Carrinho" />
+      <span id="contador-carrinho">0</span>
+    </button>
+  </header>
+
+  <!-- ================================
+       BOLHAS LATERAIS FIXAS
+       ================================ -->
+  <div id="bolhas-menu">
+    <button class="bolha" id="botao-login" title="Entrar / Conta">
+      <img src="icons/user.svg" alt="Login" />
+    </button>
+
+    <button class="bolha" id="botao-pedidos" title="Meus pedidos">
+      <img src="icons/box.svg" alt="Pedidos" />
+    </button>
+
+    <button class="bolha" id="botao-favoritos" title="Favoritos">
+      <img src="icons/star.svg" alt="Favoritos" />
+    </button>
+  </div>
+
+  <!-- ================================
+       SEÇÃO DE PRODUTOS
+       ================================ -->
+  <section id="produtos">
+    <h2>Nossas Joias</h2>
+    <div class="produtos-container">
+      <p>Carregando produtos...</p>
+    </div>
+  </section>
+
+  <!-- ================================
+       RODAPÉ
+       ================================ -->
+  <footer>
+    <p>© 2025 JF Semi Joias - Todos os direitos reservados</p>
+  </footer>
+
+  <!-- ================================
+       SCRIPTS
+       ================================ -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="script.js"></script>
+
+  <!-- ================================
+       ALERTA AUTOMÁTICO DE PAGAMENTO
+       ================================ -->
+  <script>
+  // Detecta status de pagamento vindo do Mercado Pago
+  const params = new URLSearchParams(window.location.search);
+  const status = params.get("pagamento");
+
+  if (status) {
+    const mensagens = {
+      success: {
+        icon: "success",
+        title: "Pagamento aprovado!",
+        text: "Seu pedido foi confirmado com sucesso 🎉",
+        acao: () => {
+          // limpa o carrinho e o pedido atual
+          localStorage.removeItem("carrinho");
+          localStorage.removeItem("pedidoAtual");
+          // atualiza contador do carrinho (caso ainda esteja no DOM)
+          const contador = document.getElementById("contador-carrinho");
+          if (contador) contador.textContent = "0";
+        },
+      },
+      failure: {
+        icon: "error",
+        title: "Falha no pagamento",
+        text: "Ocorreu um erro no processamento do pagamento. Tente novamente.",
+      },
+      pending: {
+        icon: "info",
+        title: "Pagamento em análise",
+        text: "Estamos aguardando a confirmação do seu pagamento ⏳",
+      },
+    };
+
+    const msg = mensagens[status];
+    if (msg) {
+      Swal.fire({
+        icon: msg.icon,
+        title: msg.title,
+        text: msg.text,
+        confirmButtonColor: "#ff6fa7",
+        background: "#fffafc",
+        color: "#333",
+      }).then(() => {
+        // executa a ação (se existir)
+        msg.acao?.();
+        // limpa o parâmetro da URL pra não reaparecer ao recarregar
+        window.history.replaceState({}, document.title, window.location.pathname);
+      });
+    }
+  }
+</script>
+</body>
+</html>

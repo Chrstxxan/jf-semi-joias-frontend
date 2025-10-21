@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin - Pedidos | JF Semi Joias</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #ff6fa7;
+      color: #fff;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+    }
+
+    main {
+      padding: 20px;
+    }
+
+    .pedido-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      padding: 15px 20px;
+    }
+
+    .pedido-card h3 {
+      color: #ff6fa7;
+      margin-top: 0;
+    }
+
+    .pedido-card p {
+      margin: 4px 0;
+      font-size: 0.95rem;
+    }
+
+    .produtos {
+      margin-top: 10px;
+      padding-left: 15px;
+    }
+
+    .produto {
+      border-left: 3px solid #ff6fa7;
+      margin-bottom: 8px;
+      padding-left: 10px;
+      font-size: 0.9rem;
+    }
+
+    .acoes {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .acoes input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .acoes button {
+      background: #ff6fa7;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .acoes button:hover {
+      background: #e75c92;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #fff;
+      border-top: 1px solid #eee;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      color: #fff;
+      margin-left: 5px;
+    }
+
+    .pendente { background: #f39c12; }
+    .pago { background: #27ae60; }
+    .enviado { background: #2980b9; }
+    .entregue { background: #16a085; }
+    .cancelado { background: #c0392b; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>📦 Painel de Pedidos - Admin</h1>
+    <button onclick="logout()">Sair</button>
+  </header>
+
+  <main>
+    <h2>Pedidos recentes</h2>
+    <div id="lista-pedidos">Carregando...</div>
+  </main>
+
+  <footer>© 2025 JF Semi Joias - Painel Administrativo</footer>
+
+  <script>
+    const API = "http://localhost:5000";
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      Swal.fire("Acesso negado", "Você precisa estar logado como admin.", "error");
+      window.location.href = "login.html";
+    }
+
+    async function carregarPedidos() {
+      try {
+        const r = await fetch(`${API}/orders/all`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const pedidos = await r.json();
+
+        const container = document.getElementById("lista-pedidos");
+
+        if (!Array.isArray(pedidos) || pedidos.length === 0) {
+          container.innerHTML = "<p>Nenhum pedido encontrado.</p>";
+          return;
+        }
+
+        container.innerHTML = pedidos.map(p => `
+          <div class="pedido-card">
+            <h3>Pedido #${p._id.slice(-6).toUpperCase()}</h3>
+            <p><b>Cliente:</b> ${p.usuario?.nome || "—"} (${p.usuario?.email || "sem e-mail"})</p>
+            <p><b>Endereço:</b> ${p.enderecoEntrega?.rua || ""}, ${p.enderecoEntrega?.numero || ""} - ${p.enderecoEntrega?.bairro || ""}, ${p.enderecoEntrega?.cidade || ""} - ${p.enderecoEntrega?.uf || ""} (${p.enderecoEntrega?.cep || ""})</p>
+            <p><b>Data:</b> ${new Date(p.criadoEm).toLocaleString("pt-BR")}</p>
+            <p><b>Status:</b> ${p.status} <span class="status-badge ${p.status}">${p.status}</span> — Pagamento: <b>${p.statusPagamento}</b></p>
+            <p><b>Total:</b> R$ ${p.total.toFixed(2)}</p>
+
+            <div class="produtos">
+              ${p.produtos.map(i => `
+                <div class="produto">🪞 ${i.nome} — R$ ${i.preco.toFixed(2)} x ${i.quantidade}</div>
+              `).join("")}
+            </div>
+
+            <div class="acoes">
+              <input type="text" id="rastreio-${p._id}" placeholder="Código de rastreio" value="${p.rastreio || ''}" />
+              <button onclick="atualizarRastreio('${p._id}')">Salvar</button>
+              <button onclick="alterarStatus('${p._id}', '${p.status}')">Alterar Status</button>
+            </div>
+          </div>
+        `).join("");
+      } catch (e) {
+        console.error(e);
+        Swal.fire("Erro", "Falha ao carregar pedidos.", "error");
+      }
+    }
+
+    async function atualizarRastreio(id) {
+      const rastreio = document.getElementById(`rastreio-${id}`).value.trim();
+      if (!rastreio) {
+        Swal.fire("Erro", "Informe um código de rastreio.", "warning");
+        return;
+      }
+
+      const r = await fetch(`${API}/orders/${id}/rastreio`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ rastreio })
+      });
+
+      const data = await r.json();
+      Swal.fire(data.mensagem || "Rastreio atualizado!", "", "success");
+      carregarPedidos();
+    }
+
+    async function alterarStatus(id, statusAtual) {
+      const { value: novoStatus } = await Swal.fire({
+        title: "Alterar status do pedido",
+        input: "select",
+        inputOptions: {
+          pendente: "Pendente",
+          pago: "Pago",
+          enviado: "Enviado",
+          entregue: "Entregue",
+          cancelado: "Cancelado"
+        },
+        inputValue: statusAtual,
+        showCancelButton: true,
+        confirmButtonText: "Salvar"
+      });
+
+      if (!novoStatus) return;
+
+      await fetch(`${API}/orders/${id}/status`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ status: novoStatus })
+      });
+
+      Swal.fire("Status atualizado!", "", "success");
+      carregarPedidos();
+    }
+
+    function logout() {
+      localStorage.removeItem("token");
+      Swal.fire("Sessão encerrada", "", "success").then(() => {
+        window.location.href = "login.html";
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", carregarPedidos);
+  </script>
+</body>
+</html>

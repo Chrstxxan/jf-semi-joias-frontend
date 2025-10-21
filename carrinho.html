@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carrinho - JF Semi Joias</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <header>
+    <h1>Seu Carrinho</h1>
+  </header>
+
+  <section id="carrinho-container">
+    <p>Carregando produtos...</p>
+  </section>
+
+  <footer>
+    <button id="finalizar-compra">Finalizar Compra</button>
+  </footer>
+
+  <!-- Biblioteca SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Biblioteca de confete 🎊 -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    const API = "http://localhost:5000";
+
+    // ================================
+    // Função pra carregar o carrinho
+    // ================================
+    function carregarCarrinho() {
+      const carrinhoContainer = document.getElementById('carrinho-container');
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+      if (carrinho.length === 0) {
+        carrinhoContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        return;
+      }
+
+      let total = 0;
+      carrinhoContainer.innerHTML = carrinho.map((item, index) => {
+        total += item.preco;
+        return `
+          <div class="item-carrinho">
+            <img src="${item.imagem}" alt="${item.nome}" />
+            <div>
+              <h3>${item.nome}</h3>
+              <p>R$ ${item.preco.toFixed(2)}</p>
+              <button onclick="confirmarRemocao(${index}, '${item.nome}')">Remover</button>
+            </div>
+          </div>
+        `;
+      }).join('') + `
+        <h2>Total: R$ ${total.toFixed(2)}</h2>
+      `;
+    }
+
+    // ================================
+    // Confirmação antes de remover item
+    // ================================
+    function confirmarRemocao(index, nomeProduto) {
+      Swal.fire({
+        title: 'Remover produto?',
+        html: `<p>Deseja realmente remover <b>${nomeProduto}</b> do carrinho?</p>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, remover',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#ff6fa7',
+        cancelButtonColor: '#aaa',
+        background: '#fffafc',
+      }).then((result) => {
+        if (result.isConfirmed) removerItem(index, nomeProduto);
+      });
+    }
+
+    // ================================
+    // Remove item do carrinho + alerta visual
+    // ================================
+    function removerItem(index, nomeProduto) {
+      let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      carrinho.splice(index, 1);
+      localStorage.setItem('carrinho', JSON.stringify(carrinho));
+      carregarCarrinho();
+
+      Swal.fire({
+        title: 'Produto removido',
+        text: `"${nomeProduto}" foi removido do seu carrinho.`,
+        icon: 'info',
+        timer: 1600,
+        showConfirmButton: false,
+        background: '#fffafc',
+        color: '#333'
+      });
+
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#ff6fa7', '#ffe4ec', '#ff4b8f']
+      });
+    }
+
+    // ================================
+    // Finalizar compra → cria pedido no BD + vai pro checkout
+    // ================================
+    document.getElementById('finalizar-compra').addEventListener('click', async () => {
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+      const token = localStorage.getItem('token');
+
+      if (!carrinho.length) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Carrinho vazio!',
+          text: 'Adicione produtos antes de finalizar a compra.',
+          confirmButtonColor: '#ff6fa7'
+        });
+        return;
+      }
+
+      if (!token) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Você precisa estar logado',
+          confirmButtonText: 'Fazer login',
+          confirmButtonColor: '#ff6fa7'
+        }).then(() => window.location.href = 'login.html');
+        return;
+      }
+
+      const total = carrinho.reduce((sum, p) => sum + p.preco, 0);
+
+      Swal.fire({
+        title: 'Confirmar compra?',
+        html: `
+          <p style="font-size: 16px;">Você está prestes a continuar para o checkout com <b>${carrinho.length}</b> item(s).</p>
+          <p style="font-size: 18px; margin-top: 10px; color: #ff4b8f;">Valor total: R$ ${total.toFixed(2)}</p>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ir para o checkout',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#ff6fa7',
+        cancelButtonColor: '#aaa',
+        background: '#fffafc'
+      }).then(async (result) => {
+        if (result.isConfirmed) {
+          try {
+  const resp = await fetch(`${API}/orders`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      produtos: carrinho.map(p => ({
+        produtoId: p._id, // 👈 usa o id real
+        nome: p.nome,
+        preco: p.preco,
+        imagem: p.imagem,
+        quantidade: p.quantidade || 1
+      })),
+      total
+    })
+  });
+
+  const data = await resp.json();
+
+  if (!resp.ok || !data.order) {
+    throw new Error(data.erro || 'Erro ao criar pedido');
+  }
+
+  console.log('✅ Pedido criado:', data.order);
+
+  localStorage.setItem('pedidoAtual', JSON.stringify(data.order));
+
+  // Garante que o redirecionamento só acontece depois de salvar
+  setTimeout(() => {
+    window.location.href = 'checkout.html';
+  }, 300);
+
+} catch (error) {
+  console.error('❌ Erro ao criar pedido:', error);
+  Swal.fire({
+    icon: 'error',
+    title: 'Erro ao processar o pedido',
+    text: 'Tente novamente mais tarde.',
+    confirmButtonColor: '#ff6fa7'
+  });
+}
+
+        }
+      });
+    });
+
+    // ================================
+    // Carrega o carrinho ao abrir
+    // ================================
+    window.addEventListener('DOMContentLoaded', carregarCarrinho);
+  </script>
+
+</body>
+</html>
