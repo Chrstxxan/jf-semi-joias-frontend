@@ -761,3 +761,25 @@ h2 {
   background-color: #ff4b8f;
   transform: scale(1.03);
 }
+
+#finalizar-compra {
+  display: block;
+  margin: 30px auto;
+  background-color: #ff6fa7;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  width: fit-content; /* 🔥 ajusta automaticamente */
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(255, 111, 167, 0.3);
+}
+
+#finalizar-compra:hover {
+  background-color: #ff4b8f;
+  box-shadow: 0 4px 10px rgba(255, 111, 167, 0.5);
+  transform: translateY(-2px);
+}
