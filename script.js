@@ -1,7 +1,7 @@
 // ================================
 // CONFIGURAÇÃO GERAL
 // ================================
-const API = "http://localhost:5000";
+const API = "https://jf-semi-joias-backend.onrender.com";
 
 // ================================
 // ATUALIZA CONTADOR DO CARRINHO
