@@ -116,6 +116,23 @@
   </style>
 </head>
 <body>
+  <!-- Bloqueio de acesso -->
+  <script>
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "admin") {
+      Swal.fire({
+        icon: "error",
+        title: "Acesso negado",
+        text: "Você precisa estar logado como administrador.",
+        confirmButtonColor: "#ff6fa7"
+      }).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+
   <header>
     <h1>📦 Painel de Pedidos - Admin</h1>
     <button onclick="logout()">Sair</button>
@@ -130,14 +147,9 @@
 
   <script>
     const API = "https://jf-semi-joias-backend.onrender.com";
-    const token = localStorage.getItem('token');
-
-    if (!token) {
-      Swal.fire("Acesso negado", "Você precisa estar logado como admin.", "error");
-      window.location.href = "login.html";
-    }
 
     async function carregarPedidos() {
+      const token = localStorage.getItem('token');
       try {
         const r = await fetch(`${API}/orders/all`, {
           headers: { Authorization: `Bearer ${token}` }
@@ -181,6 +193,7 @@
 
     async function atualizarRastreio(id) {
       const rastreio = document.getElementById(`rastreio-${id}`).value.trim();
+      const token = localStorage.getItem('token');
       if (!rastreio) {
         Swal.fire("Erro", "Informe um código de rastreio.", "warning");
         return;
@@ -198,6 +211,7 @@
     }
 
     async function alterarStatus(id, statusAtual) {
+      const token = localStorage.getItem('token');
       const { value: novoStatus } = await Swal.fire({
         title: "Alterar status do pedido",
         input: "select",
@@ -227,6 +241,7 @@
 
     function logout() {
       localStorage.removeItem("token");
+      localStorage.removeItem("role");
       Swal.fire("Sessão encerrada", "", "success").then(() => {
         window.location.href = "login.html";
       });

@@ -8,6 +8,25 @@
 </head>
 
 <body class="bg-gray-50 text-gray-900 flex flex-col items-center justify-center min-h-screen">
+
+  <!-- Verificação de autenticação -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    if (!token || role !== "admin") {
+      Swal.fire({
+        icon: "error",
+        title: "Acesso negado",
+        text: "Você precisa estar logado como administrador.",
+        confirmButtonColor: "#ff4b8f"
+      }).then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+
   <h1 style="font-size: 26px; color: #ff4b8f;">Painel Administrativo - JF Semi Joias</h1>
   <p style="margin-bottom: 20px;">Cadastre o código de rastreio para o cliente.</p>
 
@@ -25,7 +44,6 @@
     <p id="statusMsg" style="margin-top:15px; font-size:14px;"></p>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     const API = "https://jf-semi-joias-backend.onrender.com";
 
