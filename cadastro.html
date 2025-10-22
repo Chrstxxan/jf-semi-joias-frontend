@@ -168,21 +168,30 @@
         console.log("📝 Resposta do cadastro:", data);
 
         if (resp.ok && data.token) {
-          // Salva token e papel
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("role", data.usuario?.role || "cliente");
+  localStorage.setItem("token", data.token);
 
-          Swal.fire({
-            icon: "success",
-            title: "Cadastro realizado!",
-            text: "Bem-vindo(a) à JF Semi Joias 💖",
-            confirmButtonColor: "#ff6fa7",
-            timer: 1800,
-            showConfirmButton: false
-          }).then(() => {
-            window.location.href = "index.html";
-          });
-        } else {
+  // tenta extrair a role do usuário ou do token
+  let role = data.usuario?.role;
+  if (!role) {
+    try {
+      const payload = JSON.parse(atob(data.token.split(".")[1]));
+      role = payload.role;
+    } catch (e) {
+      console.error("Erro ao decodificar JWT:", e);
+    }
+  }
+
+  localStorage.setItem("role", role || "cliente");
+
+  Swal.fire({
+    icon: "success",
+    title: "Login realizado com sucesso!",
+    confirmButtonColor: "#ff6fa7",
+    timer: 1200,
+    showConfirmButton: false
+  }).then(() => window.location.href = "index.html");
+}
+ else {
           Swal.fire({
             icon: "error",
             title: "Erro no cadastro",

@@ -168,17 +168,30 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
     console.log("🔐 Resposta do login:", data);
 
     if (resp.ok && data.token) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("role", data.usuario?.role || "cliente"); // garante valor válido
+  localStorage.setItem("token", data.token);
 
-      Swal.fire({
-        icon: "success",
-        title: "Login realizado com sucesso!",
-        confirmButtonColor: "#ff6fa7",
-        timer: 1200,
-        showConfirmButton: false
-      }).then(() => window.location.href = "index.html");
-    } else {
+  // tenta extrair a role do usuário ou do token
+  let role = data.usuario?.role;
+  if (!role) {
+    try {
+      const payload = JSON.parse(atob(data.token.split(".")[1]));
+      role = payload.role;
+    } catch (e) {
+      console.error("Erro ao decodificar JWT:", e);
+    }
+  }
+
+  localStorage.setItem("role", role || "cliente");
+
+  Swal.fire({
+    icon: "success",
+    title: "Login realizado com sucesso!",
+    confirmButtonColor: "#ff6fa7",
+    timer: 1200,
+    showConfirmButton: false
+  }).then(() => window.location.href = "index.html");
+}
+ else {
       Swal.fire({
         icon: "error",
         title: "Erro no login",
