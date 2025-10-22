@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
     body {
-      font-family: "Poppins", sans-serif;
+      font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: #fafafa;
       color: #333;
       margin: 0;
@@ -29,8 +29,34 @@
       font-size: 1.6rem;
     }
 
+    header button {
+      background: #fff;
+      color: #ff6fa7;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    header button:hover {
+      background: #ffe4ee;
+    }
+
     main {
       padding: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    footer {
+      text-align: center;
+      padding: 15px;
+      background: #fff;
+      border-top: 1px solid #eee;
+      color: #777;
+      font-size: 0.9rem;
     }
 
     .pedido-card {
@@ -66,11 +92,12 @@
     .acoes {
       margin-top: 10px;
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
     }
 
     .acoes input {
-      flex: 1;
+      flex: 1 1 220px;
       padding: 6px 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
@@ -90,15 +117,6 @@
       background: #e75c92;
     }
 
-    footer {
-      text-align: center;
-      padding: 15px;
-      background: #fff;
-      border-top: 1px solid #eee;
-      color: #777;
-      font-size: 0.9rem;
-    }
-
     .status-badge {
       display: inline-block;
       padding: 2px 8px;
@@ -106,6 +124,7 @@
       font-size: 0.8rem;
       color: #fff;
       margin-left: 5px;
+      text-transform: capitalize;
     }
 
     .pendente { background: #f39c12; }
@@ -115,22 +134,23 @@
     .cancelado { background: #c0392b; }
   </style>
 </head>
-<body>
-  <!-- Bloqueio de acesso -->
-  <script>
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
 
-    if (!token || role !== "admin") {
-      Swal.fire({
-        icon: "error",
-        title: "Acesso negado",
-        text: "Você precisa estar logado como administrador.",
-        confirmButtonColor: "#ff6fa7"
-      }).then(() => {
-        window.location.href = "login.html";
-      });
-    }
+<body>
+  <script>
+    // 🔒 Verifica se o admin está autenticado
+    (function checkAuth() {
+      const token = localStorage.getItem("token");
+      const role  = localStorage.getItem("role");
+
+      if (!token || role !== "admin") {
+        Swal.fire({
+          icon: "error",
+          title: "Acesso negado",
+          text: "Você precisa estar logado como administrador.",
+          confirmButtonColor: "#ff6fa7"
+        }).then(() => window.location.href = "login.html");
+      }
+    })();
   </script>
 
   <header>
@@ -145,73 +165,99 @@
 
   <footer>© 2025 JF Semi Joias - Painel Administrativo</footer>
 
-  <script>
+    <script>
     const API = "https://jf-semi-joias-backend.onrender.com";
 
+    // 🔁 Carrega pedidos do backend
     async function carregarPedidos() {
-      const token = localStorage.getItem('token');
-      try {
-        const r = await fetch(`${API}/orders/all`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const pedidos = await r.json();
+      const token = localStorage.getItem("token");
+      const lista = document.getElementById("lista-pedidos");
 
-        const container = document.getElementById("lista-pedidos");
+      try {
+        const res = await fetch(`${API}/orders/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!res.ok) {
+          throw new Error("Falha ao buscar pedidos");
+        }
+
+        const pedidos = await res.json();
 
         if (!Array.isArray(pedidos) || pedidos.length === 0) {
-          container.innerHTML = "<p>Nenhum pedido encontrado.</p>";
+          lista.innerHTML = "<p>Nenhum pedido encontrado.</p>";
           return;
         }
 
-        container.innerHTML = pedidos.map(p => `
-          <div class="pedido-card">
-            <h3>Pedido #${p._id.slice(-6).toUpperCase()}</h3>
-            <p><b>Cliente:</b> ${p.usuario?.nome || "—"} (${p.usuario?.email || "sem e-mail"})</p>
-            <p><b>Endereço:</b> ${p.enderecoEntrega?.rua || ""}, ${p.enderecoEntrega?.numero || ""} - ${p.enderecoEntrega?.bairro || ""}, ${p.enderecoEntrega?.cidade || ""} - ${p.enderecoEntrega?.uf || ""} (${p.enderecoEntrega?.cep || ""})</p>
-            <p><b>Data:</b> ${new Date(p.criadoEm).toLocaleString("pt-BR")}</p>
-            <p><b>Status:</b> ${p.status} <span class="status-badge ${p.status}">${p.status}</span> — Pagamento: <b>${p.statusPagamento}</b></p>
-            <p><b>Total:</b> R$ ${p.total.toFixed(2)}</p>
+        lista.innerHTML = pedidos
+          .map((p) => `
+            <div class="pedido-card">
+              <h3>Pedido #${p._id.slice(-6).toUpperCase()}</h3>
+              <p><b>Cliente:</b> ${p.usuario?.nome || "—"} (${p.usuario?.email || "sem e-mail"})</p>
+              <p><b>Endereço:</b> ${p.enderecoEntrega?.rua || ""}, ${p.enderecoEntrega?.numero || ""} - ${p.enderecoEntrega?.bairro || ""}, ${p.enderecoEntrega?.cidade || ""} - ${p.enderecoEntrega?.uf || ""} (${p.enderecoEntrega?.cep || ""})</p>
+              <p><b>Data:</b> ${new Date(p.criadoEm).toLocaleString("pt-BR")}</p>
+              <p><b>Status:</b> ${p.status}
+                <span class="status-badge ${p.status}">${p.status}</span> —
+                Pagamento: <b>${p.statusPagamento}</b>
+              </p>
+              <p><b>Total:</b> R$ ${p.total.toFixed(2)}</p>
 
-            <div class="produtos">
-              ${p.produtos.map(i => `
-                <div class="produto">🪞 ${i.nome} — R$ ${i.preco.toFixed(2)} x ${i.quantidade}</div>
-              `).join("")}
-            </div>
+              <div class="produtos">
+                ${p.produtos.map(
+                  (i) => `<div class="produto">🪞 ${i.nome} — R$ ${i.preco.toFixed(2)} x ${i.quantidade}</div>`
+                ).join("")}
+              </div>
 
-            <div class="acoes">
-              <input type="text" id="rastreio-${p._id}" placeholder="Código de rastreio" value="${p.rastreio || ''}" />
-              <button onclick="atualizarRastreio('${p._id}')">Salvar</button>
-              <button onclick="alterarStatus('${p._id}', '${p.status}')">Alterar Status</button>
+              <div class="acoes">
+                <input type="text" id="rastreio-${p._id}" placeholder="Código de rastreio" value="${p.rastreio || ""}" />
+                <button onclick="atualizarRastreio('${p._id}')">Salvar</button>
+                <button onclick="alterarStatus('${p._id}', '${p.status}')">Alterar Status</button>
+              </div>
             </div>
-          </div>
-        `).join("");
-      } catch (e) {
-        console.error(e);
+          `)
+          .join("");
+      } catch (err) {
+        console.error(err);
+        lista.innerHTML = "<p>Erro ao carregar pedidos.</p>";
         Swal.fire("Erro", "Falha ao carregar pedidos.", "error");
       }
     }
 
+    // ✉️ Atualiza código de rastreio
     async function atualizarRastreio(id) {
       const rastreio = document.getElementById(`rastreio-${id}`).value.trim();
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
+
       if (!rastreio) {
-        Swal.fire("Erro", "Informe um código de rastreio.", "warning");
+        Swal.fire("⚠️ Campos obrigatórios", "Informe o código de rastreio.", "warning");
         return;
       }
 
-      const r = await fetch(`${API}/orders/${id}/rastreio`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ rastreio })
-      });
+      try {
+        const res = await fetch(`${API}/orders/${id}/rastreio`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ rastreio }),
+        });
 
-      const data = await r.json();
-      Swal.fire(data.mensagem || "Rastreio atualizado!", "", "success");
-      carregarPedidos();
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao salvar rastreio");
+
+        Swal.fire("✅ Sucesso!", data.mensagem || "Rastreio atualizado!", "success");
+        carregarPedidos();
+      } catch (err) {
+        console.error(err);
+        Swal.fire("💥 Erro!", err.message || "Falha ao atualizar rastreio.", "error");
+      }
     }
 
+    // 🔄 Atualiza status do pedido
     async function alterarStatus(id, statusAtual) {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
+
       const { value: novoStatus } = await Swal.fire({
         title: "Alterar status do pedido",
         input: "select",
@@ -220,25 +266,36 @@
           pago: "Pago",
           enviado: "Enviado",
           entregue: "Entregue",
-          cancelado: "Cancelado"
+          cancelado: "Cancelado",
         },
         inputValue: statusAtual,
         showCancelButton: true,
-        confirmButtonText: "Salvar"
+        confirmButtonText: "Salvar",
       });
 
       if (!novoStatus) return;
 
-      await fetch(`${API}/orders/${id}/status`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ status: novoStatus })
-      });
+      try {
+        const res = await fetch(`${API}/orders/${id}/status`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: novoStatus }),
+        });
 
-      Swal.fire("Status atualizado!", "", "success");
-      carregarPedidos();
+        if (!res.ok) throw new Error("Erro ao atualizar status");
+
+        Swal.fire("✅ Sucesso!", "Status atualizado com sucesso!", "success");
+        carregarPedidos();
+      } catch (err) {
+        console.error(err);
+        Swal.fire("💥 Erro!", err.message || "Falha ao atualizar status.", "error");
+      }
     }
 
+    // 🚪 Logout
     function logout() {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
@@ -247,6 +304,7 @@
       });
     }
 
+    // 🚀 Inicializa
     window.addEventListener("DOMContentLoaded", carregarPedidos);
   </script>
 </body>

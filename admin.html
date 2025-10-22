@@ -3,50 +3,132 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Painel Admin - Rastreamento</title>
+  <title>Painel Admin - Rastreamento | JF Semi Joias</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: #ff4b8f;
+      margin-bottom: 5px;
+    }
+
+    p {
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: #fff;
+      padding: 22px 28px;
+      border-radius: 12px;
+      box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+      width: 360px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin: 6px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 15px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px 14px;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: 0.25s;
+    }
+
+    .btn-primary {
+      background: #ff4b8f;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #e53e7b;
+    }
+
+    .btn-muted {
+      background: #555;
+      color: #fff;
+      margin-top: 12px;
+    }
+
+    .btn-muted:hover {
+      background: #333;
+    }
+
+    #statusMsg {
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900 flex flex-col items-center justify-center min-h-screen">
-
-  <!-- Verificação de autenticação -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<body>
   <script>
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
+    // ✅ Validação de login ANTES de carregar conteúdo
+    (function validarLogin() {
+      const token = localStorage.getItem("token");
+      const role = localStorage.getItem("role");
 
-    if (!token || role !== "admin") {
-      Swal.fire({
-        icon: "error",
-        title: "Acesso negado",
-        text: "Você precisa estar logado como administrador.",
-        confirmButtonColor: "#ff4b8f"
-      }).then(() => {
-        window.location.href = "login.html";
-      });
-    }
+      if (!token || role !== "admin") {
+        Swal.fire({
+          icon: "error",
+          title: "Acesso negado",
+          text: "Você precisa estar logado como administrador.",
+          confirmButtonColor: "#ff4b8f"
+        }).then(() => window.location.href = "login.html");
+      }
+    })();
   </script>
 
-  <h1 style="font-size: 26px; color: #ff4b8f;">Painel Administrativo - JF Semi Joias</h1>
-  <p style="margin-bottom: 20px;">Cadastre o código de rastreio para o cliente.</p>
+  <h1>Painel Administrativo - JF Semi Joias</h1>
+  <p>Cadastre o código de rastreio para o cliente.</p>
 
-  <div style="background: white; padding: 20px 25px; border-radius: 10px; box-shadow: 0 3px 12px rgba(0,0,0,0.1); width: 350px;">
-    <label style="font-weight: bold;">ID do Pedido:</label>
-    <input id="pedidoId" type="text" placeholder="Ex: 68f6944feb1db744ff807d4c" style="width:100%; padding:8px; margin-bottom:12px;">
+  <div class="card">
+    <label for="pedidoId">ID do Pedido:</label>
+    <input id="pedidoId" type="text" placeholder="Ex: 68f6944feb1db744ff807d4c" />
 
-    <label style="font-weight: bold;">Código de Rastreio:</label>
-    <input id="codigoRastreio" type="text" placeholder="Ex: NX123456789BR" style="width:100%; padding:8px; margin-bottom:12px;">
+    <label for="codigoRastreio">Código de Rastreio:</label>
+    <input id="codigoRastreio" type="text" placeholder="Ex: NX123456789BR" />
 
-    <button id="enviarRastreio" style="width:100%; padding:10px; background:#ff4b8f; color:white; font-weight:bold; border:none; border-radius:5px; cursor:pointer;">
-      Enviar e Notificar Cliente
-    </button>
+    <button id="enviarRastreio" class="btn btn-primary">Enviar e Notificar Cliente</button>
+    <p id="statusMsg"></p>
 
-    <p id="statusMsg" style="margin-top:15px; font-size:14px;"></p>
+    <button onclick="logout()" class="btn btn-muted">Sair</button>
   </div>
 
   <script>
     const API = "https://jf-semi-joias-backend.onrender.com";
 
+    // ✅ Envio do código de rastreio
     document.getElementById("enviarRastreio").addEventListener("click", async () => {
       const pedidoId = document.getElementById("pedidoId").value.trim();
       const codigo = document.getElementById("codigoRastreio").value.trim();
@@ -54,11 +136,6 @@
 
       if (!pedidoId || !codigo) {
         Swal.fire("⚠️ Campos obrigatórios", "Preencha todos os campos!", "warning");
-        return;
-      }
-
-      if (!token) {
-        Swal.fire("⚠️ Não autenticado", "Faça login como admin primeiro!", "error");
         return;
       }
 
@@ -73,7 +150,6 @@
         });
 
         const data = await res.json();
-
         if (!res.ok) throw new Error(data.erro || "Erro ao cadastrar rastreio");
 
         Swal.fire("✅ Sucesso!", data.mensagem || "Cliente notificado com sucesso!", "success");
@@ -84,6 +160,15 @@
         Swal.fire("💥 Erro!", err.message || "Falha ao enviar rastreio.", "error");
       }
     });
+
+    // ✅ Logout
+    function logout() {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      Swal.fire("Sessão encerrada", "", "success").then(() => {
+        window.location.href = "login.html";
+      });
+    }
   </script>
 </body>
 </html>
