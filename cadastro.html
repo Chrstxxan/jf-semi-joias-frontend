@@ -154,6 +154,10 @@
       }
 
       try {
+        // Limpa tokens anteriores para evitar conflito
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+
         const resp = await fetch(`${API}/auth/register`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -161,15 +165,19 @@
         });
 
         const data = await resp.json();
+        console.log("📝 Resposta do cadastro:", data);
 
         if (resp.ok && data.token) {
+          // Salva token e papel
           localStorage.setItem("token", data.token);
+          localStorage.setItem("role", data.usuario?.role || "cliente");
+
           Swal.fire({
             icon: "success",
             title: "Cadastro realizado!",
-            text: "Você será redirecionado para a loja.",
+            text: "Bem-vindo(a) à JF Semi Joias 💖",
             confirmButtonColor: "#ff6fa7",
-            timer: 1500,
+            timer: 1800,
             showConfirmButton: false
           }).then(() => {
             window.location.href = "index.html";
@@ -178,7 +186,7 @@
           Swal.fire({
             icon: "error",
             title: "Erro no cadastro",
-            text: data.erro || "Tente novamente.",
+            text: data.erro || "Não foi possível concluir seu cadastro.",
             confirmButtonColor: "#ff6fa7"
           });
         }
@@ -187,7 +195,7 @@
         Swal.fire({
           icon: "error",
           title: "Falha na conexão",
-          text: "Não foi possível conectar ao servidor.",
+          text: "Não foi possível conectar ao servidor. Tente novamente mais tarde.",
           confirmButtonColor: "#ff6fa7"
         });
       }
