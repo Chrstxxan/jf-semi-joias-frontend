@@ -8,10 +8,43 @@
 </head>
 <body>
 
+  <!-- 🔝 Header igual ao resto do site -->
+  <nav id="faixa-categorias">
+    <div class="categorias">
+      <a href="index.html" class="categoria">Conjuntos</a>
+      <a href="index.html" class="categoria">Pulseiras</a>
+      <a href="index.html" class="categoria">Brincos</a>
+    </div>
+
+    <div class="busca">
+      <input type="text" placeholder="Digite aqui o que procura..." />
+      <button id="botao-buscar">
+        <img src="./icons/search.svg" width="20" alt="Buscar" />
+      </button>
+    </div>
+  </nav>
+
   <header>
     <h1>Seu Carrinho</h1>
+    <button id="botao-carrinho" onclick="window.location.href='carrinho.html'" title="Carrinho">
+      <img src="./icons/cart.svg" alt="Carrinho" />
+      <span id="contador-carrinho">0</span>
+    </button>
   </header>
 
+  <div id="bolhas-menu">
+    <button class="bolha" onclick="window.location.href='login.html'" title="Entrar / Conta">
+      <img src="icons/user.svg" alt="Login" width="26" />
+    </button>
+    <button class="bolha" onclick="window.location.href='meus-pedidos.html'" title="Meus pedidos">
+      <img src="icons/box.svg" alt="Pedidos" width="26" />
+    </button>
+    <button class="bolha" onclick="window.location.href='favoritos.html'" title="Favoritos">
+      <img src="icons/star.svg" alt="Favoritos" width="26" />
+    </button>
+  </div>
+
+  <!-- 🛍️ Conteúdo do carrinho -->
   <section id="carrinho-container">
     <p>Carregando produtos...</p>
   </section>
@@ -20,16 +53,15 @@
     <button id="finalizar-compra">Finalizar Compra</button>
   </footer>
 
-  <!-- Biblioteca SweetAlert2 -->
+  <!-- Bibliotecas -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- Biblioteca de confete 🎊 -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <script>
     const API = "https://jf-semi-joias-backend.onrender.com";
 
     // ================================
-    // Função pra carregar o carrinho
+    // 🧺 Carrega produtos do carrinho
     // ================================
     function carregarCarrinho() {
       const carrinhoContainer = document.getElementById('carrinho-container');
@@ -42,7 +74,7 @@
 
       let total = 0;
       carrinhoContainer.innerHTML = carrinho.map((item, index) => {
-        total += item.preco;
+        total += item.preco * (item.quantidade || 1);
         return `
           <div class="item-carrinho">
             <img src="${item.imagem}" alt="${item.nome}" />
@@ -56,10 +88,13 @@
       }).join('') + `
         <h2>Total: R$ ${total.toFixed(2)}</h2>
       `;
+
+      // Atualiza contador de carrinho no topo
+      document.getElementById("contador-carrinho").textContent = carrinho.length;
     }
 
     // ================================
-    // Confirmação antes de remover item
+    // 🗑️ Confirmar remoção
     // ================================
     function confirmarRemocao(index, nomeProduto) {
       Swal.fire({
@@ -78,7 +113,7 @@
     }
 
     // ================================
-    // Remove item do carrinho + alerta visual
+    // 🚮 Remover item + feedback visual
     // ================================
     function removerItem(index, nomeProduto) {
       let carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
@@ -90,7 +125,7 @@
         title: 'Produto removido',
         text: `"${nomeProduto}" foi removido do seu carrinho.`,
         icon: 'info',
-        timer: 1600,
+        timer: 1500,
         showConfirmButton: false,
         background: '#fffafc',
         color: '#333'
@@ -105,11 +140,11 @@
     }
 
     // ================================
-    // Finalizar compra → cria pedido no BD + vai pro checkout
+    // 💳 Finalizar compra → vai pro checkout
     // ================================
-    document.getElementById('finalizar-compra').addEventListener('click', async () => {
-      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    document.getElementById('finalizar-compra').addEventListener('click', () => {
       const token = localStorage.getItem('token');
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
       if (!carrinho.length) {
         Swal.fire({
@@ -125,79 +160,31 @@
         Swal.fire({
           icon: 'info',
           title: 'Você precisa estar logado',
+          text: 'Entre na sua conta antes de continuar.',
           confirmButtonText: 'Fazer login',
           confirmButtonColor: '#ff6fa7'
         }).then(() => window.location.href = 'login.html');
         return;
       }
 
-      const total = carrinho.reduce((sum, p) => sum + p.preco, 0);
-
       Swal.fire({
-        title: 'Confirmar compra?',
-        html: `
-          <p style="font-size: 16px;">Você está prestes a continuar para o checkout com <b>${carrinho.length}</b> item(s).</p>
-          <p style="font-size: 18px; margin-top: 10px; color: #ff4b8f;">Valor total: R$ ${total.toFixed(2)}</p>
-        `,
+        title: 'Ir para o checkout?',
+        html: `<p>Você tem <b>${carrinho.length}</b> item(s) no carrinho.</p>`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonText: 'Ir para o checkout',
+        confirmButtonText: 'Continuar',
         cancelButtonText: 'Cancelar',
         confirmButtonColor: '#ff6fa7',
         cancelButtonColor: '#aaa',
-        background: '#fffafc'
-      }).then(async (result) => {
+      }).then((result) => {
         if (result.isConfirmed) {
-          try {
-  const resp = await fetch(`${API}/orders`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      produtos: carrinho.map(p => ({
-        produtoId: p._id, // 👈 usa o id real
-        nome: p.nome,
-        preco: p.preco,
-        imagem: p.imagem,
-        quantidade: p.quantidade || 1
-      })),
-      total
-    })
-  });
-
-  const data = await resp.json();
-
-  if (!resp.ok || !data.order) {
-    throw new Error(data.erro || 'Erro ao criar pedido');
-  }
-
-  console.log('✅ Pedido criado:', data.order);
-
-  localStorage.setItem('pedidoAtual', JSON.stringify(data.order));
-
-  // Garante que o redirecionamento só acontece depois de salvar
-  setTimeout(() => {
-    window.location.href = 'checkout.html';
-  }, 300);
-
-} catch (error) {
-  console.error('❌ Erro ao criar pedido:', error);
-  Swal.fire({
-    icon: 'error',
-    title: 'Erro ao processar o pedido',
-    text: 'Tente novamente mais tarde.',
-    confirmButtonColor: '#ff6fa7'
-  });
-}
-
+          window.location.href = 'checkout.html';
         }
       });
     });
 
     // ================================
-    // Carrega o carrinho ao abrir
+    // 🚀 Inicialização
     // ================================
     window.addEventListener('DOMContentLoaded', carregarCarrinho);
   </script>

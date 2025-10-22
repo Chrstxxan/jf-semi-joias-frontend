@@ -83,7 +83,7 @@
        ALERTA AUTOMÁTICO DE PAGAMENTO
        ================================ -->
   <script>
-  // Detecta status de pagamento vindo do Mercado Pago
+  // 🔎 Detecta o status do pagamento vindo do Mercado Pago
   const params = new URLSearchParams(window.location.search);
   const status = params.get("pagamento");
 
@@ -94,10 +94,11 @@
         title: "Pagamento aprovado!",
         text: "Seu pedido foi confirmado com sucesso 🎉",
         acao: () => {
-          // limpa o carrinho e o pedido atual
+          // Limpa dados locais
           localStorage.removeItem("carrinho");
           localStorage.removeItem("pedidoAtual");
-          // atualiza contador do carrinho (caso ainda esteja no DOM)
+
+          // Atualiza contador de carrinho (caso ainda esteja no DOM)
           const contador = document.getElementById("contador-carrinho");
           if (contador) contador.textContent = "0";
         },
@@ -115,7 +116,9 @@
     };
 
     const msg = mensagens[status];
+
     if (msg) {
+      // Exibe o alerta visual
       Swal.fire({
         icon: msg.icon,
         title: msg.title,
@@ -124,13 +127,22 @@
         background: "#fffafc",
         color: "#333",
       }).then(() => {
-        // executa a ação (se existir)
+        // Executa a ação (se existir)
         msg.acao?.();
-        // limpa o parâmetro da URL pra não reaparecer ao recarregar
+
+        // Limpa o parâmetro da URL para não repetir alerta ao recarregar
         window.history.replaceState({}, document.title, window.location.pathname);
       });
     }
   }
+
+  // 💡 Extra: garante que, se o usuário voltar pro site via cache, os parâmetros "pagamento" não fiquem travados
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      const cleanURL = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanURL);
+    }
+  });
 </script>
 </body>
 </html>

@@ -8,29 +8,49 @@
 </head>
 
 <body>
+  <!-- 🔝 Header padrão -->
+  <nav id="faixa-categorias">
+    <div class="categorias">
+      <a href="index.html" class="categoria">Conjuntos</a>
+      <a href="index.html" class="categoria">Pulseiras</a>
+      <a href="index.html" class="categoria">Brincos</a>
+    </div>
+
+    <div class="busca">
+      <input type="text" placeholder="Digite aqui o que procura..." />
+      <button id="botao-buscar">
+        <img src="./icons/search.svg" width="20" alt="Buscar" />
+      </button>
+    </div>
+  </nav>
+
   <header>
     <h1>Finalizar Compra</h1>
     <p>Confira seus dados e o endereço de entrega</p>
   </header>
 
   <main id="checkout-container">
+    <!-- 📦 Endereço e dados pessoais -->
     <section id="endereco">
-  <h2>Endereço de Entrega</h2>
-  <form id="form-endereco">
-    <input type="text" id="cep" placeholder="CEP" required maxlength="9" />
-    <input type="text" id="rua" placeholder="Rua" required />
-    <input type="text" id="numero" placeholder="Número" required />
-    <input type="text" id="complemento" placeholder="Complemento" />
-    <input type="text" id="bairro" placeholder="Bairro" required />
-    <input type="text" id="cidade" placeholder="Cidade" required />
-    <input type="text" id="uf" placeholder="UF" maxlength="2" required />
+      <h2>Endereço de Entrega</h2>
+      <form id="form-endereco">
+        <input type="text" id="nome" placeholder="Nome completo" required />
+        <input type="tel" id="telefone" placeholder="Telefone (com DDD)" required maxlength="15" />
+        <input type="text" id="cep" placeholder="CEP" required maxlength="9" />
+        <input type="text" id="rua" placeholder="Rua" required />
+        <input type="text" id="numero" placeholder="Número" required />
+        <input type="text" id="complemento" placeholder="Complemento" />
+        <input type="text" id="bairro" placeholder="Bairro" required />
+        <input type="text" id="cidade" placeholder="Cidade" required />
+        <input type="text" id="uf" placeholder="UF" maxlength="2" required />
 
-    <button type="button" id="calcular-frete">Calcular Frete</button>
-  </form>
+        <button type="button" id="calcular-frete">Calcular Frete</button>
+      </form>
 
-  <div id="resultado-frete" style="margin-top: 15px;"></div>
-</section>
+      <div id="resultado-frete" style="margin-top: 15px;"></div>
+    </section>
 
+    <!-- 🧾 Resumo do pedido -->
     <section id="resumo-pedido">
       <h2>Resumo do Pedido</h2>
       <div id="lista-produtos"></div>
@@ -50,23 +70,25 @@
 
   <script>
     const API = "https://jf-semi-joias-backend.onrender.com";
-    const pedido = JSON.parse(localStorage.getItem("pedidoAtual"));
+    const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
     const token = localStorage.getItem("token");
 
     let valorFrete = 0;
-    let totalProdutos = pedido?.total || 0;
+    let totalProdutos = carrinho.reduce((s, p) => s + (p.preco * (p.quantidade || 1)), 0);
 
     // ================================
-    // Preenche resumo do pedido
+    // 🧺 Carrega resumo do carrinho
     // ================================
     function carregarResumo() {
       const lista = document.getElementById("lista-produtos");
-      if (!pedido || !pedido.produtos) {
-        lista.innerHTML = "<p>Nenhum item encontrado.</p>";
+
+      if (!carrinho.length) {
+        lista.innerHTML = "<p>Seu carrinho está vazio.</p>";
+        document.getElementById("btn-pagar").disabled = true;
         return;
       }
 
-      lista.innerHTML = pedido.produtos.map(p => `
+      lista.innerHTML = carrinho.map(p => `
         <div class="item-carrinho">
           <img src="${p.imagem}" alt="${p.nome}" width="60" />
           <span>${p.nome}</span>
@@ -74,11 +96,12 @@
         </div>
       `).join("");
 
-      document.getElementById("total-pedido").textContent = `Total produtos: R$ ${totalProdutos.toFixed(2)}`;
+      document.getElementById("total-pedido").textContent =
+        `Total produtos: R$ ${totalProdutos.toFixed(2)}`;
     }
 
     // ================================
-    // Busca endereço pelo CEP (ViaCEP)
+    // 🔍 Busca endereço via CEP (ViaCEP)
     // ================================
     document.getElementById("cep").addEventListener("blur", async () => {
       const cep = document.getElementById("cep").value.replace(/\D/g, "");
@@ -103,7 +126,7 @@
     });
 
     // ================================
-    // Calcula o frete
+    // 🚚 Calcular frete
     // ================================
     document.getElementById("calcular-frete").addEventListener("click", async () => {
       const cepDestino = document.getElementById("cep").value.replace(/\D/g, "");
@@ -122,8 +145,10 @@
         const data = await res.json();
         valorFrete = parseFloat(data.Valor.replace(",", ".")) || 0;
 
-        document.getElementById("frete-info").textContent = `Frete: R$ ${valorFrete.toFixed(2)} (${data.PrazoEntrega} dias úteis)`;
-        document.getElementById("total-geral").textContent = `Total com frete: R$ ${(totalProdutos + valorFrete).toFixed(2)}`;
+        document.getElementById("frete-info").textContent =
+          `Frete: R$ ${valorFrete.toFixed(2)} (${data.PrazoEntrega} dias úteis)`;
+        document.getElementById("total-geral").textContent =
+          `Total com frete: R$ ${(totalProdutos + valorFrete).toFixed(2)}`;
         document.getElementById("btn-pagar").disabled = false;
       } catch (err) {
         console.error(err);
@@ -137,58 +162,66 @@
     });
 
     // ================================
-    // Pagar com Mercado Pago (Sandbox)
+    // 💳 Pagar com Mercado Pago
     // ================================
     document.getElementById("btn-pagar").addEventListener("click", async () => {
-  const enderecoEntrega = {
-    cep: document.getElementById("cep").value,
-    rua: document.getElementById("rua").value,
-    numero: document.getElementById("numero").value,
-    complemento: document.getElementById("complemento").value,
-    bairro: document.getElementById("bairro").value,
-    cidade: document.getElementById("cidade").value,
-    uf: document.getElementById("uf").value,
-  };
+      const enderecoEntrega = {
+        nome: document.getElementById("nome").value,
+        telefone: document.getElementById("telefone").value,
+        cep: document.getElementById("cep").value,
+        rua: document.getElementById("rua").value,
+        numero: document.getElementById("numero").value,
+        complemento: document.getElementById("complemento").value,
+        bairro: document.getElementById("bairro").value,
+        cidade: document.getElementById("cidade").value,
+        uf: document.getElementById("uf").value,
+      };
 
-  const token = localStorage.getItem("token");
-  const pedido = JSON.parse(localStorage.getItem("pedidoAtual"));
-  const itens = pedido?.produtos || [];
+      if (!enderecoEntrega.nome || !enderecoEntrega.telefone || !enderecoEntrega.rua) {
+        Swal.fire({
+          icon: "warning",
+          title: "Preencha todos os campos obrigatórios!",
+          confirmButtonColor: "#ff6fa7"
+        });
+        return;
+      }
 
-  try {
-    const res = await fetch(`${API}/payment/mp/preference`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  },
-  body: JSON.stringify({
-    itens: pedido.produtos.map(p => ({
-  produtoId: p.produtoId || p._id,
-  quantidade: p.quantidade || 1
-})),
-    enderecoEntrega: endereco,
-    frete: valorFrete
-  })
-});
+      try {
+        const res = await fetch(`${API}/payment/mp/preference`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            itens: carrinho.map(p => ({
+              produtoId: p._id,
+              quantidade: p.quantidade || 1
+            })),
+            enderecoEntrega,
+            frete: valorFrete
+          })
+        });
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.erro || "Erro ao criar pagamento");
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.erro || "Erro ao criar pagamento");
 
-    window.location.href = data.init_point; // Redireciona pro checkout do Mercado Pago
-  } catch (err) {
-    console.error(err);
-    Swal.fire({
-      icon: "error",
-      title: "Erro ao iniciar pagamento",
-      text: "Tente novamente mais tarde.",
-      confirmButtonColor: "#ff6fa7",
+        // Limpa o carrinho e vai pro checkout do MP
+        localStorage.removeItem("carrinho");
+        window.location.href = data.init_point;
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Erro ao iniciar pagamento",
+          text: err.message || "Tente novamente mais tarde.",
+          confirmButtonColor: "#ff6fa7",
+        });
+      }
     });
-  }
-});
-
 
     // ================================
-    // Inicializa
+    // 🚀 Inicializa resumo
     // ================================
     window.addEventListener("DOMContentLoaded", carregarResumo);
   </script>

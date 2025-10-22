@@ -32,15 +32,19 @@
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
-    const API_URL = "http://localhost:5000";
+    const API_URL = "https://jf-semi-joias-backend.onrender.com";
 
-    // Atualiza contador do carrinho
+    // ================================
+    // 🛒 Atualiza contador do carrinho
+    // ================================
     function atualizarContadorCarrinho() {
       const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
       document.getElementById('contador-carrinho').textContent = carrinho.length;
     }
 
-    // Inicializa botões flutuantes
+    // ================================
+    // 💡 Inicializa botões flutuantes
+    // ================================
     function inicializarBolhas() {
       document.getElementById('botao-login')?.addEventListener('click', () => {
         const token = localStorage.getItem('token');
@@ -56,7 +60,7 @@
           }).then(r => {
             if (r.isConfirmed) {
               localStorage.removeItem('token');
-              Swal.fire('Sessão encerrada!', '', 'success');
+              Swal.fire('Sessão encerrada!', '', 'success').then(() => location.reload());
             }
           });
         } else {
@@ -68,7 +72,9 @@
       document.getElementById('botao-favoritos')?.addEventListener('click', () => window.location.href = 'favoritos.html');
     }
 
-    // Carrega pedidos do usuário logado
+    // ================================
+    // 📦 Carrega pedidos do usuário logado
+    // ================================
     async function carregarPedidos() {
       const lista = document.getElementById('lista-pedidos');
       const token = localStorage.getItem('token');
@@ -87,6 +93,7 @@
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        if (!res.ok) throw new Error("Erro na API");
         const pedidos = await res.json();
 
         if (!Array.isArray(pedidos) || pedidos.length === 0) {
@@ -94,12 +101,34 @@
           return;
         }
 
+        // 🔁 Traduz status para português
+        const traduzirStatus = (status) => {
+          const mapa = {
+            pending: "Pendente",
+            approved: "Pago",
+            rejected: "Rejeitado",
+            pendente: "Pendente",
+            pago: "Pago",
+            rejeitado: "Rejeitado",
+            enviado: "Enviado",
+            entregue: "Entregue",
+            cancelado: "Cancelado"
+          };
+          return mapa[status] || "Em processamento";
+        };
+
         lista.innerHTML = pedidos.map(p => `
           <div class="pedido-card" style="border:1px solid #ddd;border-radius:10px;padding:20px;margin-bottom:20px;background:#fffafc;">
             <h3 style="color:#ff6fa7;">Pedido #${p._id.slice(-6).toUpperCase()}</h3>
-            <p><b>Status:</b> ${p.status || 'Em processamento'} — <b>Pagamento:</b> ${p.statusPagamento || '—'}</p>
-            <p><b>Data:</b> ${new Date(p.criadoEm).toLocaleDateString('pt-BR')}</p>
+            <p><b>Status:</b> ${traduzirStatus(p.status)} — <b>Pagamento:</b> ${traduzirStatus(p.statusPagamento)}</p>
+            <p><b>Data:</b> ${new Date(p.criadoEm).toLocaleString('pt-BR')}</p>
             <p><b>Total:</b> R$ ${p.total?.toFixed(2) || '0,00'}</p>
+
+            ${
+              p.enderecoEntrega
+                ? `<p><b>Entrega:</b> ${p.enderecoEntrega.rua || ''}, ${p.enderecoEntrega.numero || ''} - ${p.enderecoEntrega.bairro || ''}, ${p.enderecoEntrega.cidade || ''}/${p.enderecoEntrega.uf || ''}</p>`
+                : ''
+            }
 
             ${
               p.rastreio
@@ -122,7 +151,7 @@
           </div>
         `).join('');
       } catch (e) {
-        console.error(e);
+        console.error('Erro ao carregar pedidos:', e);
         lista.innerHTML = '<p>Erro ao carregar pedidos 😥</p>';
       }
     }
