@@ -932,14 +932,14 @@ footer {
 }
 
 /* ============================= */
-/* 🖥️ Carrossel desktop – versão final */
+/* 🖥️ Correção definitiva do carrossel desktop */
 /* ============================= */
 @media (min-width: 769px) {
   .produto-detalhe {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 650px;
+    max-width: 680px;
     margin: 60px auto;
     text-align: center;
     background: #fff;
@@ -948,14 +948,19 @@ footer {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   }
 
-  /* Contêiner do carrossel */
+  /* Carrossel */
   .carrossel-container {
     position: relative;
     width: 100%;
-    max-width: 500px;
+    max-width: 520px;
+    min-height: 420px; /* garante altura padrão */
     margin: 0 auto 25px;
     overflow: hidden;
-    border-radius: 12px;
+    border-radius: 15px;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .carousel-track {
@@ -965,23 +970,24 @@ footer {
 
   .carousel-img {
     width: 100%;
+    height: 420px;
     flex-shrink: 0;
     object-fit: contain;
-    border-radius: 12px;
+    border-radius: 15px;
     background-color: #fff;
   }
 
-  /* Botões (setas) */
+  /* Botões laterais */
   .carrossel-container button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(255, 111, 167, 0.85);
+    background-color: rgba(255, 111, 167, 0.9);
     border: none;
-    color: #fff;
+    color: white;
     font-size: 22px;
-    width: 42px;
-    height: 42px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -990,18 +996,18 @@ footer {
 
   .carrossel-container button:hover {
     background-color: #ff4b8f;
-    transform: translateY(-50%) scale(1.05);
+    transform: translateY(-50%) scale(1.08);
   }
 
   #prev {
-    left: 12px;
+    left: -55px; /* empurra pra fora da imagem */
   }
 
   #next {
-    right: 12px;
+    right: -55px;
   }
 
-  /* Título */
+  /* Informações */
   .produto-detalhe h2 {
     margin-top: 25px;
     color: #ff4b8f;
@@ -1009,7 +1015,6 @@ footer {
     text-transform: uppercase;
   }
 
-  /* Descrição */
   .produto-detalhe p.descricao {
     max-width: 520px;
     line-height: 1.6;
@@ -1023,7 +1028,7 @@ footer {
     font-weight: bold;
     color: #333;
     font-size: 1.4rem;
-    background-color: #fff0f5; /* rosa leve */
+    background-color: #fff0f5; /* rosa suave */
     padding: 12px 30px;
     border-radius: 12px;
     margin-top: 10px;
@@ -1049,4 +1054,5 @@ footer {
     transform: scale(1.05);
   }
 }
+
 
