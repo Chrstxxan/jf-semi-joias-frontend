@@ -1091,3 +1091,44 @@ footer {
   object-fit: contain;
 }
 
+/* ============================= */
+/* 📱 Correção de centralização e rolagem no mobile * se der ruim eu tiro desse trecho pra baixo/ 
+/* ============================= */
+html, body {
+  overflow-x: hidden !important; /* impede rolagem lateral */
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Garante centralização dos produtos */
+  .produtos-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0 10px;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* Impede que botões laterais "empurrem" a tela */
+  #botao-carrinho,
+  #bolhas-menu {
+    right: 10px;
+    overflow: visible;
+  }
+
+  /* Garante que o carrinho também não empurre a tela */
+  #carrinho-container {
+    max-width: 95%;
+    margin: 20px auto;
+    overflow-x: hidden;
+  }
+}
+
