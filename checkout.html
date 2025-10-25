@@ -5,6 +5,51 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Checkout - JF Semi Joias</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* 💅 Estilo aprimorado do frete */
+    #frete-info {
+      font-weight: 600;
+      color: #333;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+
+    #frete-info span.prazo {
+      color: #ff6fa7; /* Rosa da identidade da loja */
+      font-style: italic;
+      font-weight: 500;
+      margin-left: 5px;
+    }
+
+    /* 💳 Botão de pagamento com ícones */
+    #btn-pagar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background-color: #ff6fa7;
+      border: none;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 15px 25px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    #btn-pagar:hover {
+      background-color: #ff5c98;
+      transform: scale(1.02);
+    }
+
+    #btn-pagar img {
+      width: 22px;
+      height: 22px;
+      filter: brightness(0) invert(1); /* deixa branco o SVG se for escuro */
+    }
+  </style>
 </head>
 
 <body>
@@ -59,7 +104,12 @@
       <h2 id="total-geral"></h2>
     </section>
 
-    <button id="btn-pagar" disabled>Pagar com Mercado Pago 💳</button>
+    <!-- 💳 Botão de pagamento com ícones -->
+    <button id="btn-pagar" disabled>
+      <img src="./icons/card.svg" alt="Ícone cartão" />
+      Pagar com Mercado Pago
+      <img src="./icons/card.svg" alt="Ícone cartão" />
+    </button>
   </main>
 
   <footer>
@@ -145,9 +195,9 @@
         const data = await res.json();
         valorFrete = parseFloat(data.Valor.replace(",", ".")) || 0;
 
-        // ✅ Mostra prazo médio e máximo (Correios + tempo da loja)
-        document.getElementById("frete-info").textContent =
-          `Frete: R$ ${valorFrete.toFixed(2)} (${data.PrazoMedio} a ${data.PrazoMaximo} dias úteis)`;
+        // ✅ Exibe frete + prazo médio e máximo (Correios + tempo da loja)
+        document.getElementById("frete-info").innerHTML =
+          `Frete: R$ ${valorFrete.toFixed(2)} <span class="prazo">(${data.PrazoMedio} a ${data.PrazoMaximo} dias úteis)</span>`;
 
         document.getElementById("total-geral").textContent =
           `Total com frete: R$ ${(totalProdutos + valorFrete).toFixed(2)}`;
