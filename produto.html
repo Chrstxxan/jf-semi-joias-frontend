@@ -7,15 +7,43 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     /* ============================= */
-    /* 📱 Ajustes responsivos mobile */
+    /* 🎞️ Correção do carrossel lateral */
     /* ============================= */
+    .carrossel-container {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
 
+    .carousel-track {
+      display: flex;
+      transition: transform 0.3s ease;
+    }
+
+    .carousel-img {
+      width: 100%;
+      flex-shrink: 0;
+      border-radius: 10px;
+      object-fit: contain;
+    }
+
+    /* 🖥️ Desktop fix */
+    @media (min-width: 769px) {
+      .carousel-img {
+        max-height: 420px;
+        object-fit: cover;
+      }
+    }
+
+    /* 📱 Ajustes mobile */
     @media (max-width: 768px) {
       #faixa-categorias {
         flex-direction: column;
         align-items: center;
-        padding: 10px;
         gap: 10px;
+        padding: 10px;
       }
 
       .categorias {
@@ -39,25 +67,11 @@
         padding: 5px 10px;
       }
 
-      .carrossel-container {
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-        max-width: 500px;
-        margin: 0 auto;
-      }
-
-      .carrossel-container img {
-        width: 100%;
-        height: auto;
-        border-radius: 10px;
-      }
-
       .carrossel-container button {
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        background-color: rgba(0,0,0,0.4);
+        background-color: rgba(0, 0, 0, 0.4);
         color: #fff;
         border: none;
         font-size: 22px;
@@ -67,22 +81,8 @@
         z-index: 10;
       }
 
-      .carrossel-container #prev { left: 10px; }
-      .carrossel-container #next { right: 10px; }
-    }
-
-    @media (max-width: 480px) {
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      main {
-        padding: 10px;
-      }
-
-      section, button, input {
-        font-size: 0.9rem;
-      }
+      #prev { left: 10px; }
+      #next { right: 10px; }
     }
   </style>
 </head>
@@ -164,10 +164,8 @@
             <img src="icons/star.svg" alt="Favoritar" />
           </div>
           <div class="carrossel-container">
-            <div class="carousel-inner">
-              ${imagens.map((img, i) => `
-                <img src="${img}" class="carousel-img" style="transform: translateX(${i * 100}%);">
-              `).join("")}
+            <div class="carousel-track">
+              ${imagens.map((img) => `<img src="${img}" class="carousel-img">`).join("")}
             </div>
             <button id="prev">❮</button>
             <button id="next">❯</button>
@@ -178,13 +176,9 @@
           <button class="comprar-btn" onclick="comprar('${produto._id}', '${produto.nome}', ${produto.preco}, '${produto.imagens[0]}')">Comprar</button>
         `;
 
-        // Navegação por clique
         document.getElementById("prev").onclick = () => mudarImagem(-1);
         document.getElementById("next").onclick = () => mudarImagem(1);
-
-        // Swipe no mobile
         ativarSwipe();
-
         verificarFavorito(produto._id);
       } catch (erro) {
         console.error("Erro ao carregar produto:", erro);
@@ -193,12 +187,10 @@
     }
 
     function mudarImagem(direcao) {
-      const imgs = document.querySelectorAll(".carousel-img");
-      indiceAtual = (indiceAtual + direcao + imgs.length) % imgs.length;
-      imgs.forEach((img, i) => {
-        img.style.transform = `translateX(${(i - indiceAtual) * 100}%)`;
-        img.style.transition = "transform 0.3s ease";
-      });
+      const track = document.querySelector(".carousel-track");
+      const total = imagens.length;
+      indiceAtual = (indiceAtual + direcao + total) % total;
+      track.style.transform = `translateX(-${indiceAtual * 100}%)`;
     }
 
     function ativarSwipe() {
@@ -333,7 +325,6 @@
     });
   </script>
 
-  <!-- Correções locais da navbar -->
   <script src="script.js"></script>
 </body>
 </html>
