@@ -5,89 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalhes do Produto - JF Semi Joias</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* ============================= */
-    /* 🎞️ Correção do carrossel lateral */
-    /* ============================= */
-    .carrossel-container {
-      position: relative;
-      overflow: hidden;
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    .carousel-track {
-      display: flex;
-      transition: transform 0.3s ease;
-    }
-
-    .carousel-img {
-      width: 100%;
-      flex-shrink: 0;
-      border-radius: 10px;
-      object-fit: contain;
-    }
-
-    /* 🖥️ Desktop fix */
-    @media (min-width: 769px) {
-      .carousel-img {
-        max-height: 420px;
-        object-fit: cover;
-      }
-    }
-
-    /* 📱 Ajustes mobile */
-    @media (max-width: 768px) {
-      #faixa-categorias {
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 10px;
-      }
-
-      .categorias {
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px;
-      }
-
-      .busca {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-
-      .busca input {
-        width: 70%;
-        font-size: 0.9rem;
-      }
-
-      .busca button {
-        padding: 5px 10px;
-      }
-
-      .carrossel-container button {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background-color: rgba(0, 0, 0, 0.4);
-        color: #fff;
-        border: none;
-        font-size: 22px;
-        padding: 8px 12px;
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 10;
-      }
-
-      #prev { left: 10px; }
-      #next { right: 10px; }
-    }
-  </style>
+  <link rel="icon" type="image/png" href="icons/logo.png" />
 </head>
 
 <body>
+  <!-- 🔸 Barra de categorias e busca -->
   <nav id="faixa-categorias">
     <div class="categorias">
       <a href="#" class="categoria">Conjuntos</a>
@@ -103,13 +25,16 @@
     </div>
   </nav>
 
+  <!-- 🔸 Cabeçalho -->
   <header>
     <h1>JF Semi Joias</h1>
     <p>Detalhes do Produto</p>
+
     <button id="botao-carrinho" onclick="irParaCarrinho()" title="Carrinho">
       <img src="icons/cart.svg" alt="Carrinho" />
       <span id="contador-carrinho">0</span>
     </button>
+
     <div id="bolhas-menu">
       <button class="bolha" id="botao-login" title="Entrar / Conta">
         <img src="icons/user.svg" alt="Login" />
@@ -123,10 +48,12 @@
     </div>
   </header>
 
+  <!-- 🔸 Detalhes do produto -->
   <div class="produto-detalhe" id="produto-detalhe">
     <p>Carregando produto...</p>
   </div>
 
+  <!-- 🔸 Rodapé -->
   <footer>
     <p>© 2025 JF Semi Joias - Todos os direitos reservados</p>
   </footer>
@@ -163,6 +90,7 @@
           <div class="favorito-btn" id="favorito-detalhe" onclick="toggleFavoritoDetalhe()">
             <img src="icons/star.svg" alt="Favoritar" />
           </div>
+
           <div class="carrossel-container">
             <div class="carousel-track">
               ${imagens.map((img) => `<img src="${img}" class="carousel-img">`).join("")}
@@ -170,6 +98,7 @@
             <button id="prev">❮</button>
             <button id="next">❯</button>
           </div>
+
           <h2>${produto.nome}</h2>
           <p class="descricao">${produto.descricao}</p>
           <p class="preco-detalhe">R$ ${produto.preco.toFixed(2)}</p>
@@ -212,7 +141,7 @@
         }
       });
 
-      container.addEventListener("touchend", () => dragging = false);
+      container.addEventListener("touchend", () => (dragging = false));
     }
 
     async function verificarFavorito(id) {
@@ -288,7 +217,7 @@
         nome: nomeProduto,
         preco: precoProduto,
         imagem: imagemProduto,
-        quantidade: 1
+        quantidade: 1,
       });
       localStorage.setItem("carrinho", JSON.stringify(carrinho));
       atualizarContadorCarrinho();
