@@ -1058,3 +1058,6 @@ footer {
   #prev { left: 10px; }
   #next { right: 10px; }
 }
+
+.produto-detalhe { overflow: visible !important; }
+.carrossel-container button { z-index: 999 !important; }
