@@ -1182,3 +1182,40 @@ html, body {
     background: #ff6fa7 !important;
   }
 }
+
+/* ============================= */
+/* 📱 Correção final de centralização dos cards no mobile * mesmo esquema dos de cima/
+/* ============================= */
+@media (max-width: 768px) {
+  /* Garante que o container principal não passe de 100% */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Container principal dos produtos */
+  .produtos-container,
+  .lista-produtos,
+  main,
+  section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center !important;
+    align-items: flex-start;
+    max-width: 100%;
+    margin: 0 auto !important;
+    padding: 0 10px !important;
+    box-sizing: border-box;
+    overflow-x: hidden !important;
+  }
+
+  /* Cada card de produto */
+  .produto {
+    flex: 0 1 90%;
+    max-width: 400px;
+    margin: 10px auto;
+    text-align: center;
+  }
+}
