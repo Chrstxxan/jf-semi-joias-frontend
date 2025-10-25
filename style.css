@@ -1057,3 +1057,61 @@ footer {
   #prev { left: 5px; }
   #next { right: 5px; }
 }
+
+/* ============================= */
+/* 🩷 Ajuste final das setas do carrossel */
+/* ============================= */
+
+/* --- Desktop --- */
+@media (min-width: 769px) {
+  .carrossel-container button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 111, 167, 0.9); /* rosa suave */
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .carrossel-container button:hover {
+    background-color: #ff4b8f; /* rosa forte ao passar */
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  #prev { left: -55px; }
+  #next { right: -55px; }
+}
+
+/* --- Mobile --- */
+@media (max-width: 768px) {
+  .carrossel-container button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255,255,255,0.6); /* neutro translúcido */
+    color: #ff6fa7; /* rosa leve no ícone */
+    border: none;
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .carrossel-container button:active {
+    background-color: rgba(255, 111, 167, 0.9); /* rosa quando clica */
+    color: white;
+  }
+
+  #prev { left: 10px; }
+  #next { right: 10px; }
+}
