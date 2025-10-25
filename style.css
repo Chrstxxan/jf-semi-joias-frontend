@@ -931,9 +931,71 @@ footer {
   }
 }
 
-/* ============================= */
-/* 🖥️ Correção definitiva do carrossel desktop */
-/* ============================= */
+/* ================================ */
+/* 🎯 CORREÇÃO FINAL DO CARROSSEL DE PRODUTO */
+/* ================================ */
+
+/* 🔹 Base geral (funciona para todos os tamanhos) */
+.carrossel-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto 25px;
+  border-radius: 15px;
+  background-color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel-track {
+  display: flex;
+  transition: transform 0.4s ease;
+  width: 100%;
+}
+
+.carousel-img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  flex-shrink: 0;
+  object-fit: contain;
+  border-radius: 15px;
+  background-color: #fff;
+}
+
+/* 🔹 Botões laterais */
+.carrossel-container button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(255, 111, 167, 0.9);
+  border: none;
+  color: white;
+  font-size: 22px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.carrossel-container button:hover {
+  background-color: #ff4b8f;
+  transform: translateY(-50%) scale(1.08);
+}
+
+#prev {
+  left: -55px; /* fica fora da imagem */
+}
+
+#next {
+  right: -55px;
+}
+
+/* 🔹 Desktop refinado */
 @media (min-width: 769px) {
   .produto-detalhe {
     display: flex;
@@ -948,111 +1010,50 @@ footer {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   }
 
-  /* Carrossel */
-  .carrossel-container {
-    position: relative;
-    width: 100%;
-    max-width: 520px;
-    min-height: 420px; /* garante altura padrão */
-    margin: 0 auto 25px;
-    overflow: hidden;
-    border-radius: 15px;
-    background-color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .carousel-track {
-    display: flex;
-    transition: transform 0.4s ease;
-  }
-
   .carousel-img {
-    width: 100%;
-    height: 420px;
-    flex-shrink: 0;
-    object-fit: contain;
-    border-radius: 15px;
-    background-color: #fff;
+    max-height: 420px;
   }
 
-  /* Botões laterais */
-  .carrossel-container button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 111, 167, 0.9);
-    border: none;
-    color: white;
-    font-size: 22px;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 10;
-  }
-
-  .carrossel-container button:hover {
-    background-color: #ff4b8f;
-    transform: translateY(-50%) scale(1.08);
-  }
-
-  #prev {
-    left: -55px; /* empurra pra fora da imagem */
-  }
-
-  #next {
-    right: -55px;
-  }
-
-  /* Informações */
-  .produto-detalhe h2 {
-    margin-top: 25px;
-    color: #ff4b8f;
-    font-weight: bold;
-    text-transform: uppercase;
-  }
-
-  .produto-detalhe p.descricao {
-    max-width: 520px;
-    line-height: 1.6;
-    color: #444;
-    margin: 15px auto;
-  }
-
-  /* Preço */
   .preco-detalhe {
     display: inline-block;
     font-weight: bold;
     color: #333;
     font-size: 1.4rem;
-    background-color: #fff0f5; /* rosa suave */
+    background-color: #fff0f5; /* tom rosa suave restaurado */
     padding: 12px 30px;
     border-radius: 12px;
     margin-top: 10px;
     box-shadow: 0 3px 8px rgba(255, 111, 167, 0.25);
   }
 
-  /* Botão Comprar */
-  .comprar-btn {
-    background: #ff6fa7;
-    border: none;
-    color: white;
-    padding: 14px 60px;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.25s;
-    margin-top: 15px;
+  .carrossel-container button {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
   }
 
-  .comprar-btn:hover {
-    background: #ff4b8f;
-    transform: scale(1.05);
-  }
+  #prev { left: -55px; }
+  #next { right: -55px; }
 }
 
+/* 🔹 Mobile responsivo */
+@media (max-width: 768px) {
+  .carrossel-container {
+    max-width: 100%;
+    border-radius: 10px;
+  }
 
+  .carousel-img {
+    height: auto;
+    max-height: 400px;
+  }
+
+  .carrossel-container button {
+    width: 38px;
+    height: 38px;
+    font-size: 18px;
+  }
+
+  #prev { left: 5px; }
+  #next { right: 5px; }
+}
