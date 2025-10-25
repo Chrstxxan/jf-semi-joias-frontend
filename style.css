@@ -932,10 +932,10 @@ footer {
 }
 
 /* ================================ */
-/* 🎯 CORREÇÃO FINAL DO CARROSSEL DE PRODUTO */
+/* 🎯 CARROSSEL DE PRODUTO - VERSÃO FINAL LIMPA */
 /* ================================ */
 
-/* 🔹 Base geral (funciona para todos os tamanhos) */
+/* Base do container */
 .carrossel-container {
   position: relative;
   overflow: hidden;
@@ -965,37 +965,9 @@ footer {
   background-color: #fff;
 }
 
-/* 🔹 Botões laterais */
-.carrossel-container button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background-color: rgba(255, 111, 167, 0.9);
-  border: none;
-  color: white;
-  font-size: 22px;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.carrossel-container button:hover {
-  background-color: #ff4b8f;
-  transform: translateY(-50%) scale(1.08);
-}
-
-#prev {
-  left: -55px; /* fica fora da imagem */
-}
-
-#next {
-  right: -55px;
-}
-
-/* 🔹 Desktop refinado */
+/* ============================= */
+/* 🖥️ Desktop */
+/* ============================= */
 @media (min-width: 769px) {
   .produto-detalhe {
     display: flex;
@@ -1014,29 +986,39 @@ footer {
     max-height: 420px;
   }
 
-  .preco-detalhe {
-    display: inline-block;
-    font-weight: bold;
-    color: #333;
-    font-size: 1.4rem;
-    background-color: #fff0f5; /* tom rosa suave restaurado */
-    padding: 12px 30px;
-    border-radius: 12px;
-    margin-top: 10px;
-    box-shadow: 0 3px 8px rgba(255, 111, 167, 0.25);
-  }
-
+  /* Botões laterais */
   .carrossel-container button {
-    width: 46px;
-    height: 46px;
-    font-size: 22px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 111, 167, 0.9);
+    border: none;
+    color: white;
+    font-size: 26px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+    z-index: 15;
   }
 
-  #prev { left: -55px; }
-  #next { right: -55px; }
+  .carrossel-container button:hover {
+    background-color: #ff4b8f;
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  #prev { left: -60px; }
+  #next { right: -60px; }
 }
 
-/* 🔹 Mobile responsivo */
+/* ============================= */
+/* 📱 Mobile */
+/* ============================= */
 @media (max-width: 768px) {
   .carrossel-container {
     max-width: 100%;
@@ -1049,66 +1031,27 @@ footer {
   }
 
   .carrossel-container button {
-    width: 38px;
-    height: 38px;
-    font-size: 18px;
-  }
-
-  #prev { left: 5px; }
-  #next { right: 5px; }
-}
-
-/* ============================= */
-/* 🩷 Ajuste final das setas do carrossel */
-/* ============================= */
-
-/* --- Desktop --- */
-@media (min-width: 769px) {
-  .carrossel-container button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background-color: rgba(255, 111, 167, 0.9); /* rosa suave */
-    border: none;
-    color: white;
-    font-size: 24px;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    z-index: 10;
-  }
-
-  .carrossel-container button:hover {
-    background-color: #ff4b8f; /* rosa forte ao passar */
-    transform: translateY(-50%) scale(1.08);
-  }
-
-  #prev { left: -55px; }
-  #next { right: -55px; }
-}
-
-/* --- Mobile --- */
-@media (max-width: 768px) {
-  .carrossel-container button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255,255,255,0.6); /* neutro translúcido */
-    color: #ff6fa7; /* rosa leve no ícone */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.6);
+    color: #ff6fa7;
     border: none;
     font-size: 22px;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
-    z-index: 10;
+    z-index: 15;
   }
 
   .carrossel-container button:active {
-    background-color: rgba(255, 111, 167, 0.9); /* rosa quando clica */
+    background-color: rgba(255, 111, 167, 0.9);
     color: white;
   }
 
