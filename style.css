@@ -989,36 +989,67 @@ footer {
 }
 
 /* ============================= */
-/* 🖥️ Correção definitiva do carrossel no desktop */
+/* 🖥️ Correção final do carrossel no desktop */
 /* ============================= */
 @media (min-width: 769px) {
   .carrossel-container {
-    max-width: 480px;
-    margin: 0 auto;
-    overflow: hidden;
+    position: relative;
+    overflow: visible; /* permite as setas saírem */
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 25px;
     border-radius: 12px;
   }
 
   .carousel-track {
     display: flex;
     transition: transform 0.3s ease;
-    width: 100%;
   }
 
   .carousel-img {
     width: 100%;
     flex-shrink: 0;
-    object-fit: cover;
-    aspect-ratio: 1 / 1;
+    object-fit: contain; /* não corta a imagem */
     border-radius: 12px;
+    background-color: #fff;
+  }
+
+  .carrossel-container button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #ff6fa7;
+    border: none;
+    color: white;
+    font-size: 24px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    z-index: 5;
+  }
+
+  .carrossel-container button:hover {
+    background-color: #ff4b8f;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  /* setas ficam para fora da imagem */
+  #prev {
+    left: -55px;
+  }
+
+  #next {
+    right: -55px;
   }
 
   .produto-detalhe {
     display: flex;
     flex-direction: column;
     align-items: center;
-    max-width: 600px;
-    margin: 40px auto;
+    max-width: 650px;
+    margin: 60px auto;
     text-align: center;
     background: #fff;
     border-radius: 20px;
@@ -1034,13 +1065,21 @@ footer {
   }
 
   .produto-detalhe p.descricao {
-    max-width: 450px;
-    line-height: 1.5;
+    max-width: 500px;
+    line-height: 1.6;
     color: #444;
     margin: 15px auto;
   }
 
   .preco-detalhe {
+    display: inline-block;
+    font-weight: bold;
+    color: #333;
+    font-size: 1.4rem;
+    background-color: #fff0f5; /* devolve o rosa suave */
+    padding: 12px 30px;
+    border-radius: 12px;
     margin-top: 10px;
+    box-shadow: 0 3px 8px rgba(255, 111, 167, 0.25);
   }
 }
