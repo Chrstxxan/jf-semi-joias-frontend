@@ -844,6 +844,63 @@ h2 {
 }
 
 /* ============================= */
+/* 🖥️ Corrige proporção e alinhamento do carrossel desktop */
+/* ============================= */
+.produto-detalhe {
+  text-align: center;
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.produto-detalhe h2 {
+  margin-top: 25px;
+  font-size: 1.6rem;
+  color: #ff4b8f;
+  font-weight: bold;
+}
+
+.produto-detalhe p.descricao {
+  font-size: 1rem;
+  margin: 15px 0 20px;
+  color: #444;
+  line-height: 1.5;
+}
+
+.preco-detalhe {
+  display: inline-block;
+  background: #fff;
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-weight: bold;
+  font-size: 1.3rem;
+  color: #333;
+  box-shadow: 0 3px 8px rgba(255, 111, 167, 0.3);
+  margin-bottom: 15px;
+}
+
+.comprar-btn {
+  background: #ff6fa7;
+  border: none;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.comprar-btn:hover {
+  background: #ff4b8f;
+  transform: scale(1.03);
+}
+
+
+/* ============================= */
 /* 🛍️ Corrige grid de produtos mobile */
 /* ============================= */
 @media (max-width: 768px) {
