@@ -5,6 +5,86 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Detalhes do Produto - JF Semi Joias</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* ============================= */
+    /* 📱 Ajustes responsivos mobile */
+    /* ============================= */
+
+    @media (max-width: 768px) {
+      #faixa-categorias {
+        flex-direction: column;
+        align-items: center;
+        padding: 10px;
+        gap: 10px;
+      }
+
+      .categorias {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .busca {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+      }
+
+      .busca input {
+        width: 70%;
+        font-size: 0.9rem;
+      }
+
+      .busca button {
+        padding: 5px 10px;
+      }
+
+      .carrossel-container {
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+      }
+
+      .carrossel-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+      }
+
+      .carrossel-container button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(0,0,0,0.4);
+        color: #fff;
+        border: none;
+        font-size: 22px;
+        padding: 8px 12px;
+        border-radius: 50%;
+        cursor: pointer;
+        z-index: 10;
+      }
+
+      .carrossel-container #prev { left: 10px; }
+      .carrossel-container #next { right: 10px; }
+    }
+
+    @media (max-width: 480px) {
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      main {
+        padding: 10px;
+      }
+
+      section, button, input {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
 </head>
 
 <body>
@@ -54,7 +134,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
-    //const API = "https://jf-semi-joias-backend.onrender.com";
+    const API = "https://jf-semi-joias-backend.onrender.com";
     let imagens = [];
     let indiceAtual = 0;
 
@@ -84,32 +164,63 @@
             <img src="icons/star.svg" alt="Favoritar" />
           </div>
           <div class="carrossel-container">
+            <div class="carousel-inner">
+              ${imagens.map((img, i) => `
+                <img src="${img}" class="carousel-img" style="transform: translateX(${i * 100}%);">
+              `).join("")}
+            </div>
             <button id="prev">❮</button>
-            <img id="imagem-principal" src="${imagens[0]}" alt="${produto.nome}" />
             <button id="next">❯</button>
           </div>
           <h2>${produto.nome}</h2>
           <p class="descricao">${produto.descricao}</p>
           <p class="preco-detalhe">R$ ${produto.preco.toFixed(2)}</p>
           <button class="comprar-btn" onclick="comprar('${produto._id}', '${produto.nome}', ${produto.preco}, '${produto.imagens[0]}')">Comprar</button>
-
-
         `;
 
-        document.getElementById("prev").onclick = () => {
-          indiceAtual = (indiceAtual - 1 + imagens.length) % imagens.length;
-          document.getElementById("imagem-principal").src = imagens[indiceAtual];
-        };
-        document.getElementById("next").onclick = () => {
-          indiceAtual = (indiceAtual + 1) % imagens.length;
-          document.getElementById("imagem-principal").src = imagens[indiceAtual];
-        };
+        // Navegação por clique
+        document.getElementById("prev").onclick = () => mudarImagem(-1);
+        document.getElementById("next").onclick = () => mudarImagem(1);
+
+        // Swipe no mobile
+        ativarSwipe();
 
         verificarFavorito(produto._id);
       } catch (erro) {
         console.error("Erro ao carregar produto:", erro);
         detalheContainer.innerHTML = "<p>Erro ao carregar produto.</p>";
       }
+    }
+
+    function mudarImagem(direcao) {
+      const imgs = document.querySelectorAll(".carousel-img");
+      indiceAtual = (indiceAtual + direcao + imgs.length) % imgs.length;
+      imgs.forEach((img, i) => {
+        img.style.transform = `translateX(${(i - indiceAtual) * 100}%)`;
+        img.style.transition = "transform 0.3s ease";
+      });
+    }
+
+    function ativarSwipe() {
+      const container = document.querySelector(".carrossel-container");
+      let startX = 0;
+      let dragging = false;
+
+      container.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].clientX;
+        dragging = true;
+      });
+
+      container.addEventListener("touchmove", (e) => {
+        if (!dragging) return;
+        const diff = e.touches[0].clientX - startX;
+        if (Math.abs(diff) > 50) {
+          dragging = false;
+          diff > 0 ? mudarImagem(-1) : mudarImagem(1);
+        }
+      });
+
+      container.addEventListener("touchend", () => dragging = false);
     }
 
     async function verificarFavorito(id) {
@@ -181,7 +292,7 @@
     function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
       const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
       carrinho.push({
-        _id: idProduto,   // 👈 salva o ID real do produto
+        _id: idProduto,
         nome: nomeProduto,
         preco: precoProduto,
         imagem: imagemProduto,
@@ -203,12 +314,9 @@
         confirmButtonColor: "#ff6fa7",
         cancelButtonColor: "#aaa",
       }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = "carrinho.html";
-        }
+        if (result.isConfirmed) window.location.href = "carrinho.html";
       });
     }
-
 
     function atualizarContadorCarrinho() {
       const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
@@ -225,71 +333,7 @@
     });
   </script>
 
-  <!-- Corrige bolhas e navbar localmente -->
-  <script>
-    document.getElementById('botao-login')?.addEventListener('click', () => {
-      const token = localStorage.getItem('token');
-      if (token && token.length > 10) {
-        Swal.fire({
-          icon: 'info',
-          title: 'Você já está logado',
-          text: 'Deseja sair da conta?',
-          showCancelButton: true,
-          confirmButtonText: 'Sair',
-          cancelButtonText: 'Cancelar',
-          confirmButtonColor: '#ff6fa7',
-        }).then((res) => {
-          if (res.isConfirmed) {
-            localStorage.removeItem('token');
-            Swal.fire('Deslogado com sucesso', '', 'success');
-          }
-        });
-      } else {
-        window.location.href = 'login.html';
-      }
-    });
-
-    document.getElementById('botao-pedidos')?.addEventListener('click', () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faça login primeiro',
-          confirmButtonColor: '#ff6fa7',
-        }).then(() => (window.location.href = 'login.html'));
-      } else {
-        window.location.href = 'meus-pedidos.html';
-      }
-    });
-
-    document.getElementById('botao-favoritos')?.addEventListener('click', () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Faça login para ver seus favoritos',
-          confirmButtonColor: '#ff6fa7',
-        }).then(() => (window.location.href = 'login.html'));
-      } else {
-        window.location.href = 'favoritos.html';
-      }
-    });
-
-    // Navbar
-    document.querySelectorAll('.categoria')?.forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const categoria = link.textContent.trim();
-        window.location.href = `index.html?categoria=${encodeURIComponent(categoria)}`;
-      });
-    });
-
-    document.getElementById('botao-buscar')?.addEventListener('click', () => {
-      const termo = document.querySelector('.busca input').value.trim();
-      if (termo) window.location.href = `index.html?busca=${encodeURIComponent(termo)}`;
-    });
-  </script>
-
+  <!-- Correções locais da navbar -->
   <script src="script.js"></script>
 </body>
 </html>
