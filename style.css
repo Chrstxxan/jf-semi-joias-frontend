@@ -923,3 +923,20 @@ h2 {
   }
 }
 
+/* ============================= */
+/* 🧩 Ajuste fino de centralização mobile */
+/* ============================= */
+@media (max-width: 768px) {
+  .produtos-container {
+    margin: 0 auto;
+    padding-left: 10px;
+    padding-right: 10px;
+    max-width: 95%;
+  }
+
+  .produto img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+  }
+}
