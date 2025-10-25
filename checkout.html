@@ -145,10 +145,13 @@
         const data = await res.json();
         valorFrete = parseFloat(data.Valor.replace(",", ".")) || 0;
 
+        // ✅ Mostra prazo médio e máximo (Correios + tempo da loja)
         document.getElementById("frete-info").textContent =
-          `Frete: R$ ${valorFrete.toFixed(2)} (${data.PrazoEntrega} dias úteis)`;
+          `Frete: R$ ${valorFrete.toFixed(2)} (${data.PrazoMedio} a ${data.PrazoMaximo} dias úteis)`;
+
         document.getElementById("total-geral").textContent =
           `Total com frete: R$ ${(totalProdutos + valorFrete).toFixed(2)}`;
+
         document.getElementById("btn-pagar").disabled = false;
       } catch (err) {
         console.error(err);
