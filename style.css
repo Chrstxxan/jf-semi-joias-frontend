@@ -891,63 +891,6 @@ footer {
 }
 
 /* ============================= */
-/* 🖥️ Corrige proporção e alinhamento do carrossel desktop */
-/* ============================= */
-.produto-detalhe {
-  text-align: center;
-  max-width: 600px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-}
-
-.produto-detalhe h2 {
-  margin-top: 25px;
-  font-size: 1.6rem;
-  color: #ff4b8f;
-  font-weight: bold;
-}
-
-.produto-detalhe p.descricao {
-  font-size: 1rem;
-  margin: 15px 0 20px;
-  color: #444;
-  line-height: 1.5;
-}
-
-.preco-detalhe {
-  display: inline-block;
-  background: #fff;
-  padding: 10px 25px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-size: 1.3rem;
-  color: #333;
-  box-shadow: 0 3px 8px rgba(255, 111, 167, 0.3);
-  margin-bottom: 15px;
-}
-
-.comprar-btn {
-  background: #ff6fa7;
-  border: none;
-  color: white;
-  padding: 12px 30px;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.comprar-btn:hover {
-  background: #ff4b8f;
-  transform: scale(1.03);
-}
-
-
-/* ============================= */
 /* 🛍️ Corrige grid de produtos mobile */
 /* ============================= */
 @media (max-width: 768px) {
@@ -989,61 +932,9 @@ footer {
 }
 
 /* ============================= */
-/* 🖥️ Correção final do carrossel no desktop */
+/* 🖥️ Carrossel desktop – versão final */
 /* ============================= */
 @media (min-width: 769px) {
-  .carrossel-container {
-    position: relative;
-    overflow: visible; /* permite as setas saírem */
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto 25px;
-    border-radius: 12px;
-  }
-
-  .carousel-track {
-    display: flex;
-    transition: transform 0.3s ease;
-  }
-
-  .carousel-img {
-    width: 100%;
-    flex-shrink: 0;
-    object-fit: contain; /* não corta a imagem */
-    border-radius: 12px;
-    background-color: #fff;
-  }
-
-  .carrossel-container button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: #ff6fa7;
-    border: none;
-    color: white;
-    font-size: 24px;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    z-index: 5;
-  }
-
-  .carrossel-container button:hover {
-    background-color: #ff4b8f;
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  /* setas ficam para fora da imagem */
-  #prev {
-    left: -55px;
-  }
-
-  #next {
-    right: -55px;
-  }
-
   .produto-detalhe {
     display: flex;
     flex-direction: column;
@@ -1054,9 +945,63 @@ footer {
     background: #fff;
     border-radius: 20px;
     padding: 40px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
   }
 
+  /* Contêiner do carrossel */
+  .carrossel-container {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto 25px;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+
+  .carousel-track {
+    display: flex;
+    transition: transform 0.4s ease;
+  }
+
+  .carousel-img {
+    width: 100%;
+    flex-shrink: 0;
+    object-fit: contain;
+    border-radius: 12px;
+    background-color: #fff;
+  }
+
+  /* Botões (setas) */
+  .carrossel-container button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 111, 167, 0.85);
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 10;
+  }
+
+  .carrossel-container button:hover {
+    background-color: #ff4b8f;
+    transform: translateY(-50%) scale(1.05);
+  }
+
+  #prev {
+    left: 12px;
+  }
+
+  #next {
+    right: 12px;
+  }
+
+  /* Título */
   .produto-detalhe h2 {
     margin-top: 25px;
     color: #ff4b8f;
@@ -1064,22 +1009,44 @@ footer {
     text-transform: uppercase;
   }
 
+  /* Descrição */
   .produto-detalhe p.descricao {
-    max-width: 500px;
+    max-width: 520px;
     line-height: 1.6;
     color: #444;
     margin: 15px auto;
   }
 
+  /* Preço */
   .preco-detalhe {
     display: inline-block;
     font-weight: bold;
     color: #333;
     font-size: 1.4rem;
-    background-color: #fff0f5; /* devolve o rosa suave */
+    background-color: #fff0f5; /* rosa leve */
     padding: 12px 30px;
     border-radius: 12px;
     margin-top: 10px;
     box-shadow: 0 3px 8px rgba(255, 111, 167, 0.25);
   }
+
+  /* Botão Comprar */
+  .comprar-btn {
+    background: #ff6fa7;
+    border: none;
+    color: white;
+    padding: 14px 60px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.25s;
+    margin-top: 15px;
+  }
+
+  .comprar-btn:hover {
+    background: #ff4b8f;
+    transform: scale(1.05);
+  }
 }
+
