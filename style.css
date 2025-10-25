@@ -932,13 +932,13 @@ footer {
 }
 
 /* ================================ */
-/* 🎯 CARROSSEL DE PRODUTO - VERSÃO FINAL LIMPA */
+/* 🎯 CARROSSEL DE PRODUTO - VERSÃO FINAL SEM BUGS */
 /* ================================ */
 
-/* Base do container */
+/* Container base */
 .carrossel-container {
   position: relative;
-  overflow: hidden;
+  overflow: visible !important;
   width: 100%;
   max-width: 520px;
   margin: 0 auto 25px;
@@ -966,7 +966,7 @@ footer {
 }
 
 /* ============================= */
-/* 🖥️ Desktop */
+/* 🖥️ DESKTOP */
 /* ============================= */
 @media (min-width: 769px) {
   .produto-detalhe {
@@ -980,6 +980,7 @@ footer {
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: visible !important;
   }
 
   .carousel-img {
@@ -988,7 +989,7 @@ footer {
 
   /* Botões laterais */
   .carrossel-container button {
-    position: absolute;
+    position: absolute !important;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
@@ -996,15 +997,15 @@ footer {
     justify-content: center;
     background-color: rgba(255, 111, 167, 0.9);
     border: none;
-    color: white;
+    color: #fff;
     font-size: 26px;
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
     transition: all 0.2s ease;
-    z-index: 15;
+    z-index: 9999 !important;
   }
 
   .carrossel-container button:hover {
@@ -1012,12 +1013,17 @@ footer {
     transform: translateY(-50%) scale(1.08);
   }
 
-  #prev { left: -60px; }
-  #next { right: -60px; }
+  #prev {
+    left: 10px !important;
+  }
+
+  #next {
+    right: 10px !important;
+  }
 }
 
 /* ============================= */
-/* 📱 Mobile */
+/* 📱 MOBILE */
 /* ============================= */
 @media (max-width: 768px) {
   .carrossel-container {
@@ -1031,13 +1037,13 @@ footer {
   }
 
   .carrossel-container button {
-    position: absolute;
+    position: absolute !important;
     top: 50%;
     transform: translateY(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.7);
     color: #ff6fa7;
     border: none;
     font-size: 22px;
@@ -1047,17 +1053,19 @@ footer {
     cursor: pointer;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     transition: all 0.2s ease;
-    z-index: 15;
+    z-index: 9999 !important;
   }
 
   .carrossel-container button:active {
     background-color: rgba(255, 111, 167, 0.9);
-    color: white;
+    color: #fff;
   }
 
-  #prev { left: 10px; }
-  #next { right: 10px; }
-}
+  #prev {
+    left: 10px !important;
+  }
 
-.produto-detalhe { overflow: visible !important; }
-.carrossel-container button { z-index: 999 !important; }
+  #next {
+    right: 10px !important;
+  }
+}
