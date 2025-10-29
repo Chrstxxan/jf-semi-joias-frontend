@@ -32,14 +32,14 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
 
     let produtosFiltrados = produtos;
 
-    // filtro de categoria (front-end)
+    // 🔍 Filtro de categoria
     if (categoriaFiltro) {
       produtosFiltrados = produtosFiltrados.filter(p =>
         p.categoria?.toLowerCase() === categoriaFiltro.toLowerCase()
       );
     }
 
-    // filtro de busca (front-end)
+    // 🔍 Filtro de busca
     if (termoBusca) {
       const termo = termoBusca.toLowerCase();
       produtosFiltrados = produtosFiltrados.filter(p =>
@@ -52,6 +52,7 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
       return;
     }
 
+    // 🛍️ Renderiza produtos
     produtosFiltrados.forEach(produto => {
       const card = document.createElement('div');
       card.className = 'produto';
@@ -103,7 +104,7 @@ function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
 
   const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
   carrinho.push({
-    _id: idProduto,     // 👈 salva o ID real do Mongo
+    _id: idProduto,
     nome: nomeProduto,
     preco: precoProduto,
     imagem: imagemProduto
@@ -131,7 +132,6 @@ function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
   });
 }
 
-
 // ================================
 // FAVORITAR PRODUTO (HOME)
 // ================================
@@ -157,7 +157,7 @@ async function toggleFavorito(idProduto, btn) {
         headers: { Authorization: `Bearer ${token}` },
       });
       icone.src = "icons/star.svg";
-      btn.style.background = "#ffffffff";
+      btn.style.background = "#fff";
     } else {
       // Favoritar
       await fetch(`${API}/users/favoritos`, {
@@ -265,33 +265,33 @@ function inicializarBolhas() {
 // NAVBAR FUNCIONAL (FILTRO + BUSCA)
 // ================================
 function inicializarNavbar() {
-  document.querySelectorAll(".categoria")?.forEach(link => {
+  const categorias = document.querySelectorAll(".categoria");
+  const inputBusca = document.querySelector(".busca input");
+  const botaoBuscar = document.getElementById("botao-buscar");
+
+  // Filtro de categoria (instantâneo)
+  categorias.forEach(link => {
     link.addEventListener("click", async (e) => {
       e.preventDefault();
       const categoria = link.textContent.trim();
 
-      if (window.location.pathname.includes("index.html") || window.location.pathname === "/") {
-        await carregarProdutos(categoria);
-        await carregarFavoritosUsuario();
-      } else {
-        window.location.href = `index.html?categoria=${encodeURIComponent(categoria)}`;
-      }
+      // Atualiza visualmente a categoria ativa
+      categorias.forEach(l => l.classList.remove("ativo"));
+      link.classList.add("ativo");
+
+      // Recarrega os produtos filtrados sem reload
+      await carregarProdutos(categoria);
+      await carregarFavoritosUsuario();
     });
   });
 
-  const inputBusca = document.querySelector(".busca input");
-  const botaoBuscar = document.getElementById("botao-buscar");
-
+  // Busca por termo
   botaoBuscar?.addEventListener("click", async () => {
     const termo = inputBusca.value.trim();
     if (!termo) return;
 
-    if (window.location.pathname.includes("index.html") || window.location.pathname === "/") {
-      await carregarProdutos(null, termo);
-      await carregarFavoritosUsuario();
-    } else {
-      window.location.href = `index.html?busca=${encodeURIComponent(termo)}`;
-    }
+    await carregarProdutos(null, termo);
+    await carregarFavoritosUsuario();
   });
 }
 
