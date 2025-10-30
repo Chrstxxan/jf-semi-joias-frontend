@@ -4,6 +4,13 @@
 const API = "https://jf-semi-joias-backend.onrender.com";
 
 // ================================
+// UTIL: Remover acentos (corrige filtro "Anéis" vs "aneis")
+// ================================
+function removerAcentos(str) {
+  return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+// ================================
 // ATUALIZA CONTADOR DO CARRINHO
 // ================================
 function atualizarContadorCarrinho() {
@@ -73,10 +80,10 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
 
     let produtosFiltrados = produtos;
 
-    // 🔍 Filtro de categoria
+    // 🔍 Filtro de categoria (agora ignora acentos)
     if (categoriaFiltro) {
       produtosFiltrados = produtosFiltrados.filter(p =>
-        p.categoria?.toLowerCase() === categoriaFiltro.toLowerCase()
+        removerAcentos(p.categoria)?.toLowerCase() === removerAcentos(categoriaFiltro)?.toLowerCase()
       );
     }
 
