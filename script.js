@@ -20,6 +20,43 @@ function irParaCarrinho() {
 }
 
 // ================================
+// UTIL: popup para escolher tamanho
+// ================================
+function abrirSeletorTamanho(tamanhos) {
+  return new Promise((resolve) => {
+    const html = `
+      <div style="text-align:center;">
+        ${tamanhos.map((t) => `<span class="size-chip" data-size="${t}" style="
+          display:inline-block;padding:10px 12px;border-radius:10px;
+          border:1.5px solid #ff4b8f;color:#ff4b8f;font-weight:600;margin:6px;
+          cursor:pointer;user-select:none;
+        ">${t}</span>`).join("")}
+      </div>
+    `;
+    Swal.fire({
+      title: "Escolha o tamanho",
+      html,
+      showConfirmButton: false,
+      showCloseButton: true,
+      background: "#fffafc",
+      color: "#333",
+      width: 480,
+      didOpen: () => {
+        document.querySelectorAll(".size-chip").forEach(chip => {
+          chip.addEventListener("click", () => {
+            const valor = chip.getAttribute("data-size");
+            chip.style.background = "#ff4b8f";
+            chip.style.color = "#fff";
+            setTimeout(() => { Swal.close(); resolve(valor); }, 120);
+          });
+        });
+      },
+      willClose: () => { resolve(null); }
+    });
+  });
+}
+
+// ================================
 // CARREGAR PRODUTOS NA HOME
 // ================================
 const produtosContainer = document.querySelector('.produtos-container');
@@ -56,15 +93,18 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
     produtosFiltrados.forEach(produto => {
       const card = document.createElement('div');
       card.className = 'produto';
+      const primeiraImagem = (produto.imagens && produto.imagens[0]) ? produto.imagens[0] : 'icons/logo.png';
+
+      // passamos o id; a função comprar buscará categoria e tamanhos no backend quando necessário
       card.innerHTML = `
         <div class="favorito-btn" onclick="toggleFavorito('${produto._id}', this)">
           <img src="icons/star.svg" alt="Favoritar" />
         </div>
-        <img src="${produto.imagens[0]}" alt="${produto.nome}" />
+        <img src="${primeiraImagem}" alt="${produto.nome}" />
         <h3>${produto.nome}</h3>
-        <p class="preco">R$ ${produto.preco.toFixed(2)}</p>
+        <p class="preco">R$ ${Number(produto.preco || 0).toFixed(2)}</p>
         <button onclick="verDetalhes('${produto._id}')">Ver Detalhes</button>
-        <button onclick="comprar('${produto._id}', '${produto.nome}', ${produto.preco}, '${produto.imagens[0]}')">Comprar</button>
+        <button onclick="comprar('${produto._id}', '${produto.nome.replace(/'/g, "\\'")}', ${Number(produto.preco || 0)}, '${primeiraImagem.replace(/'/g, "\\'")}')">Comprar</button>
       `;
       produtosContainer.appendChild(card);
     });
@@ -83,12 +123,13 @@ function verDetalhes(idProduto) {
 }
 
 // ================================
-// ADICIONAR AO CARRINHO
+// ADICIONAR AO CARRINHO (HOME)
+// Força escolher tamanho se for "aneis"
 // ================================
-function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
+async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
   const token = localStorage.getItem('token');
   if (!token) {
-    Swal.fire({
+    const go = await Swal.fire({
       title: 'Faça login para comprar',
       text: 'Você precisa estar logado para finalizar a compra.',
       icon: 'warning',
@@ -96,40 +137,63 @@ function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
       showCancelButton: true,
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#ff6fa7',
-    }).then(result => {
-      if (result.isConfirmed) window.location.href = 'login.html';
     });
+    if (go.isConfirmed) window.location.href = 'login.html';
     return;
   }
 
-  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
-  carrinho.push({
-    _id: idProduto,
-    nome: nomeProduto,
-    preco: precoProduto,
-    imagem: imagemProduto
-  });
+  try {
+    // Busca o produto para checar categoria e tamanhos
+    const resp = await fetch(`${API}/produtos/${idProduto}`);
+    const produto = await resp.json();
 
-  localStorage.setItem('carrinho', JSON.stringify(carrinho));
-  atualizarContadorCarrinho();
+    let tamanho = null;
+    if (produto?.categoria === "aneis") {
+      const tamanhos = Array.isArray(produto.tamanhosDisponiveis) ? produto.tamanhosDisponiveis : [];
+      if (!tamanhos.length) {
+        await Swal.fire({ icon: "warning", title: "Este anel está sem tamanhos cadastrados.", confirmButtonColor: "#ff6fa7" });
+        return;
+      }
+      tamanho = await abrirSeletorTamanho(tamanhos);
+      if (!tamanho) return; // usuário cancelou
+    }
 
-  Swal.fire({
-    title: 'Produto adicionado!',
-    html: `
-      <img src="${imagemProduto}" alt="${nomeProduto}" style="width:120px;border-radius:10px;margin-bottom:15px;">
-      <p><b>${nomeProduto}</b> foi adicionado ao carrinho.</p>
-      <p style="font-size: 16px; margin-top: 8px;">R$ ${precoProduto.toFixed(2)}</p>
-    `,
-    showCancelButton: true,
-    confirmButtonText: 'Ir para o carrinho',
-    cancelButtonText: 'Continuar comprando',
-    confirmButtonColor: '#ff6fa7',
-    cancelButtonColor: '#aaa',
-    background: '#fffafc',
-    color: '#333',
-  }).then((result) => {
-    if (result.isConfirmed) window.location.href = 'carrinho.html';
-  });
+    const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+    carrinho.push({
+      _id: idProduto,
+      nome: nomeProduto,
+      preco: precoProduto,
+      imagem: imagemProduto,
+      quantidade: 1,
+      tamanho
+    });
+
+    localStorage.setItem('carrinho', JSON.stringify(carrinho));
+    atualizarContadorCarrinho();
+
+    Swal.fire({
+      title: 'Produto adicionado!',
+      html: `
+        <img src="${imagemProduto}" alt="${nomeProduto}" style="width:120px;border-radius:10px;margin-bottom:15px;">
+        <p><b>${nomeProduto}</b> foi adicionado ao carrinho.</p>
+        ${tamanho ? `<p>Tamanho: <b>${tamanho}</b></p>` : ""}
+        <p style="font-size: 16px; margin-top: 8px;">R$ ${Number(precoProduto || 0).toFixed(2)}</p>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Ir para o carrinho',
+      cancelButtonText: 'Continuar comprando',
+      confirmButtonColor: '#ff6fa7',
+      cancelButtonColor: '#aaa',
+      background: '#fffafc',
+      color: '#333',
+    }).then((result) => {
+      if (result.isConfirmed) window.location.href = 'carrinho.html';
+    });
+
+  } catch (e) {
+    console.error(e);
+    Swal.fire({ icon: "error", title: "Erro ao adicionar ao carrinho", confirmButtonColor: "#ff6fa7" });
+  }
 }
 
 // ================================
@@ -151,7 +215,6 @@ async function toggleFavorito(idProduto, btn) {
 
   try {
     if (ativo) {
-      // Desfavoritar
       await fetch(`${API}/users/favoritos/${idProduto}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -159,7 +222,6 @@ async function toggleFavorito(idProduto, btn) {
       icone.src = "icons/star.svg";
       btn.style.background = "#fff";
     } else {
-      // Favoritar
       await fetch(`${API}/users/favoritos`, {
         method: "POST",
         headers: {
@@ -269,27 +331,20 @@ function inicializarNavbar() {
   const inputBusca = document.querySelector(".busca input");
   const botaoBuscar = document.getElementById("botao-buscar");
 
-  // Filtro de categoria (instantâneo)
   categorias.forEach(link => {
     link.addEventListener("click", async (e) => {
       e.preventDefault();
       const categoria = link.textContent.trim();
-
-      // Atualiza visualmente a categoria ativa
       categorias.forEach(l => l.classList.remove("ativo"));
       link.classList.add("ativo");
-
-      // Recarrega os produtos filtrados sem reload
       await carregarProdutos(categoria);
       await carregarFavoritosUsuario();
     });
   });
 
-  // Busca por termo
   botaoBuscar?.addEventListener("click", async () => {
     const termo = inputBusca.value.trim();
     if (!termo) return;
-
     await carregarProdutos(null, termo);
     await carregarFavoritosUsuario();
   });

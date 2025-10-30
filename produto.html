@@ -7,26 +7,43 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="icon" type="image/png" href="icons/logo.png" />
   <style>
-    .botao-tamanho {
-      border: 1px solid #ff4b8f;
-      background: none;
+    /* Botão/“dropdown” customizado */
+    .size-picker-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1.5px solid #ff4b8f;
+      background: #fff;
       color: #ff4b8f;
-      border-radius: 5px;
-      padding: 6px 10px;
-      margin: 5px;
+      border-radius: 10px;
+      padding: 10px 14px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      font-weight: 600;
+      transition: transform .08s ease, box-shadow .2s ease, background-color .2s ease;
+      box-shadow: 0 4px 12px rgba(255, 75, 143, 0.12);
     }
-    .botao-tamanho:hover {
-      background-color: #ff4b8f20;
+    .size-picker-btn:hover { transform: translateY(-1px); background-color: #fff6f9; }
+    .size-picker-btn span.value { color: #ff2f82; }
+    .size-hint { font-size: .9rem; color: #777; margin-top: 6px; }
+
+    /* Chips de tamanho dentro do popup */
+    .size-chip {
+      display: inline-block;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1.5px solid #ff4b8f;
+      color: #ff4b8f;
+      font-weight: 600;
+      margin: 6px;
+      cursor: pointer;
+      transition: background-color .15s ease, color .15s ease, transform .05s ease;
+      user-select: none;
     }
-    .botao-tamanho.ativo {
-      background-color: #ff4b8f;
-      color: white;
-    }
-    .tamanhos-container {
-      margin: 15px 0;
-    }
+    .size-chip:hover { background: #ffedf4; }
+    .size-chip:active { transform: scale(0.97); }
+    .size-chip.selected { background: #ff4b8f; color: #fff; }
+
+    .tamanhos-wrapper { margin: 16px 0 6px; }
   </style>
 </head>
 
@@ -86,6 +103,8 @@
     const API = "https://jf-semi-joias-backend.onrender.com";
     let imagens = [];
     let indiceAtual = 0;
+    let produtoGlobal = null; // guarda o produto carregado
+    let tamanhoSelecionado = null; // tamanho escolhido no popup
 
     function pegarIdProduto() {
       const params = new URLSearchParams(window.location.search);
@@ -99,14 +118,17 @@
       try {
         const resposta = await fetch(`${API}/produtos/${id}`);
         const produto = await resposta.json();
+        produtoGlobal = produto;
 
         if (!produto || !produto.nome) {
           detalheContainer.innerHTML = "<p>Produto não encontrado.</p>";
           return;
         }
 
-        imagens = produto.imagens;
+        imagens = produto.imagens || [];
         indiceAtual = 0;
+
+        const temTamanhos = (produto.categoria === "aneis") && Array.isArray(produto.tamanhosDisponiveis) && produto.tamanhosDisponiveis.length;
 
         detalheContainer.innerHTML = `
           <div class="favorito-btn" id="favorito-detalhe" onclick="toggleFavoritoDetalhe()">
@@ -122,50 +144,144 @@
           </div>
 
           <h2>${produto.nome}</h2>
-          <p class="descricao">${produto.descricao}</p>
-          <p class="preco-detalhe">R$ ${produto.preco.toFixed(2)}</p>
+          <p class="descricao">${produto.descricao || ""}</p>
+          <p class="preco-detalhe">R$ ${Number(produto.preco || 0).toFixed(2)}</p>
 
-          ${
-            produto.categoria === "aneis" && produto.tamanhosDisponiveis?.length
-              ? `<div class="tamanhos-container">
-                   <p><b>Escolha o tamanho:</b></p>
-                   <div id="botoes-tamanhos"></div>
-                 </div>`
-              : ""
-          }
+          ${temTamanhos ? `
+            <div class="tamanhos-wrapper">
+              <button id="btn-escolher-tamanho" class="size-picker-btn" type="button">
+                <img src="icons/chevron-down.svg" alt="" width="18" height="18" />
+                <span>${tamanhoSelecionado ? "Tamanho: " : "Escolher tamanho"}</span>
+                <span class="value">${tamanhoSelecionado || ""}</span>
+              </button>
+              <div class="size-hint">Selecione o tamanho antes de comprar.</div>
+            </div>
+          ` : ""}
 
-          <button class="comprar-btn" onclick="comprar('${produto._id}', '${produto.nome}', ${produto.preco}, '${produto.imagens[0]}', '${produto.categoria}')">Comprar</button>
+          <button class="comprar-btn" id="btn-comprar">Comprar</button>
         `;
 
-        // gera botões de tamanho (apenas se for anel)
-        if (produto.categoria === "aneis" && produto.tamanhosDisponiveis?.length) {
-          const containerTamanhos = document.getElementById("botoes-tamanhos");
-          produto.tamanhosDisponiveis.forEach((t) => {
-            const btn = document.createElement("button");
-            btn.textContent = t;
-            btn.classList.add("botao-tamanho");
-            btn.onclick = () => {
-              document.querySelectorAll(".botao-tamanho").forEach(b => b.classList.remove("ativo"));
-              btn.classList.add("ativo");
-              produto.tamanhoSelecionado = t;
-            };
-            containerTamanhos.appendChild(btn);
-          });
-        }
-
+        // navegação galeria
         document.getElementById("prev").onclick = () => mudarImagem(-1);
         document.getElementById("next").onclick = () => mudarImagem(1);
         ativarSwipe();
         verificarFavorito(produto._id);
+
+        // dropdown / popup de tamanhos
+        if (temTamanhos) {
+          document.getElementById("btn-escolher-tamanho").addEventListener("click", () => {
+            abrirSeletorTamanho(produto.tamanhosDisponiveis).then((t) => {
+              if (!t) return;
+              tamanhoSelecionado = t;
+              const btn = document.getElementById("btn-escolher-tamanho");
+              btn.querySelector("span").textContent = "Tamanho: ";
+              btn.querySelector(".value").textContent = t;
+            });
+          });
+        }
+
+        // Comprar
+        document.getElementById("btn-comprar").addEventListener("click", async () => {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            await Swal.fire({
+              icon: "warning",
+              title: "Faça login para comprar",
+              confirmButtonText: "Entrar",
+              showCancelButton: true,
+              confirmButtonColor: "#ff6fa7",
+            });
+            if (!localStorage.getItem("token")) {
+              window.location.href = "login.html";
+              return;
+            }
+          }
+
+          // se for anel, obrigar tamanho
+          if (produto.categoria === "aneis") {
+            if (!tamanhoSelecionado) {
+              const t = await abrirSeletorTamanho(produto.tamanhosDisponiveis);
+              if (!t) return;
+              tamanhoSelecionado = t;
+              const btn = document.getElementById("btn-escolher-tamanho");
+              if (btn) {
+                btn.querySelector("span").textContent = "Tamanho: ";
+                btn.querySelector(".value").textContent = t;
+              }
+            }
+          }
+
+          adicionarAoCarrinho(produto._id, produto.nome, produto.preco, produto.imagens?.[0] || "", 1, tamanhoSelecionado);
+        });
+
       } catch (erro) {
         console.error("Erro ao carregar produto:", erro);
         detalheContainer.innerHTML = "<p>Erro ao carregar produto.</p>";
       }
     }
 
+    // Popup centralizado para tamanhos
+    function abrirSeletorTamanho(tamanhos) {
+      return new Promise((resolve) => {
+        const html = `
+          <div style="text-align:center;">
+            ${tamanhos.map((t) => `<span class="size-chip" data-size="${t}">${t}</span>`).join("")}
+          </div>
+        `;
+        Swal.fire({
+          title: "Escolha o tamanho",
+          html,
+          showConfirmButton: false,
+          showCloseButton: true,
+          background: "#fffafc",
+          color: "#333",
+          width: 480,
+          didOpen: () => {
+            document.querySelectorAll(".size-chip").forEach(chip => {
+              chip.addEventListener("click", () => {
+                const valor = chip.getAttribute("data-size");
+                // feedback visual
+                document.querySelectorAll(".size-chip").forEach(c => c.classList.remove("selected"));
+                chip.classList.add("selected");
+                setTimeout(() => {
+                  Swal.close();
+                  resolve(valor);
+                }, 120);
+              });
+            });
+          },
+          willClose: () => { if (Swal.getHtmlContainer()?.querySelector(".selected") == null) resolve(null); }
+        });
+      });
+    }
+
+    function adicionarAoCarrinho(id, nome, preco, imagem, quantidade = 1, tamanho = null) {
+      const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
+      carrinho.push({ _id: id, nome, preco, imagem, quantidade, tamanho });
+      localStorage.setItem("carrinho", JSON.stringify(carrinho));
+      atualizarContadorCarrinho();
+
+      Swal.fire({
+        title: "Produto adicionado!",
+        html: `
+          <img src="${imagem}" alt="${nome}" style="width:120px;border-radius:10px;margin-bottom:15px;">
+          <p><b>${nome}</b> foi adicionado ao carrinho.</p>
+          ${tamanho ? `<p>Tamanho: <b>${tamanho}</b></p>` : ""}
+          <p style="font-size: 16px; margin-top: 8px;">R$ ${Number(preco || 0).toFixed(2)}</p>
+        `,
+        showCancelButton: true,
+        confirmButtonText: "Ir para o carrinho",
+        cancelButtonText: "Continuar comprando",
+        confirmButtonColor: "#ff6fa7",
+        cancelButtonColor: "#aaa",
+      }).then((r) => {
+        if (r.isConfirmed) window.location.href = "carrinho.html";
+      });
+    }
+
     function mudarImagem(direcao) {
       const track = document.querySelector(".carousel-track");
-      const total = imagens.length;
+      const total = imagens.length || 1;
       indiceAtual = (indiceAtual + direcao + total) % total;
       track.style.transform = `translateX(-${indiceAtual * 100}%)`;
     }
@@ -195,16 +311,13 @@
     async function verificarFavorito(id) {
       const token = localStorage.getItem("token");
       if (!token) return;
-
       try {
         const resp = await fetch(`${API}/users/favoritos`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const favoritos = await resp.json();
-
         const icone = document.querySelector("#favorito-detalhe img");
         const jaFavoritado = favoritos.some((f) => f._id === id);
-
         if (jaFavoritado) {
           icone.src = "icons/star-fill.svg";
           document.getElementById("favorito-detalhe").style.background = "#ff6fa7";
@@ -219,35 +332,23 @@
 
     async function toggleFavoritoDetalhe() {
       const token = localStorage.getItem("token");
-
       if (!token) {
-        Swal.fire({
-          icon: "warning",
-          title: "Faça login para favoritar",
-          confirmButtonColor: "#ff6fa7",
-        }).then(() => (window.location.href = "login.html"));
+        Swal.fire({ icon: "warning", title: "Faça login para favoritar", confirmButtonColor: "#ff6fa7" })
+          .then(() => (window.location.href = "login.html"));
         return;
       }
-
       const id = pegarIdProduto();
       const icone = document.querySelector("#favorito-detalhe img");
       const ativo = icone.src.includes("star-fill");
-
       try {
         if (ativo) {
-          await fetch(`${API}/users/favoritos/${id}`, {
-            method: "DELETE",
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          await fetch(`${API}/users/favoritos/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` }});
           icone.src = "icons/star.svg";
           document.getElementById("favorito-detalhe").style.background = "#fff";
         } else {
           await fetch(`${API}/users/favoritos`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
             body: JSON.stringify({ produtoId: id }),
           });
           icone.src = "icons/star-fill.svg";
@@ -258,64 +359,13 @@
       }
     }
 
-    function comprar(idProduto, nomeProduto, precoProduto, imagemProduto, categoria) {
-      // 👇 exige tamanho se for anel
-      let tamanhoSelecionado = null;
-      if (categoria === "aneis") {
-        const ativo = document.querySelector(".botao-tamanho.ativo");
-        if (!ativo) {
-          Swal.fire({
-            icon: "warning",
-            title: "Selecione o tamanho antes de comprar!",
-            confirmButtonColor: "#ff6fa7",
-          });
-          return;
-        }
-        tamanhoSelecionado = ativo.textContent;
-      }
-
-      const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
-      carrinho.push({
-        _id: idProduto,
-        nome: nomeProduto,
-        preco: precoProduto,
-        imagem: imagemProduto,
-        quantidade: 1,
-        tamanho: tamanhoSelecionado,
-      });
-      localStorage.setItem("carrinho", JSON.stringify(carrinho));
-      atualizarContadorCarrinho();
-
-      Swal.fire({
-        title: "Produto adicionado!",
-        html: `
-          <img src="${imagemProduto}" alt="${nomeProduto}" style="width:120px;border-radius:10px;margin-bottom:15px;">
-          <p><b>${nomeProduto}</b> foi adicionado ao carrinho.</p>
-          ${
-            tamanhoSelecionado
-              ? `<p>Tamanho: <b>${tamanhoSelecionado}</b></p>`
-              : ""
-          }
-          <p style="font-size: 16px; margin-top: 8px;">R$ ${precoProduto.toFixed(2)}</p>
-        `,
-        showCancelButton: true,
-        confirmButtonText: "Ir para o carrinho",
-        cancelButtonText: "Continuar comprando",
-        confirmButtonColor: "#ff6fa7",
-        cancelButtonColor: "#aaa",
-      }).then((result) => {
-        if (result.isConfirmed) window.location.href = "carrinho.html";
-      });
-    }
-
     function atualizarContadorCarrinho() {
       const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
-      document.getElementById("contador-carrinho").textContent = carrinho.length;
+      const el = document.getElementById("contador-carrinho");
+      if (el) el.textContent = carrinho.length;
     }
 
-    function irParaCarrinho() {
-      window.location.href = "carrinho.html";
-    }
+    function irParaCarrinho() { window.location.href = "carrinho.html"; }
 
     window.addEventListener("DOMContentLoaded", () => {
       carregarProduto();
