@@ -5,6 +5,64 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carrinho - JF Semi Joias</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .item-carrinho {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 15px;
+      margin: 15px 0;
+      padding: 10px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .item-carrinho img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .item-carrinho h3 {
+      margin: 0;
+      color: #333;
+    }
+    .item-carrinho p {
+      margin: 4px 0;
+      color: #555;
+    }
+    .item-carrinho button {
+      background-color: #ff6fa7;
+      color: white;
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.3s ease;
+    }
+    .item-carrinho button:hover {
+      background-color: #ff4b8f;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+    }
+    #finalizar-compra {
+      background-color: #ff6fa7;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    #finalizar-compra:hover {
+      background-color: #ff4b8f;
+      transform: scale(1.03);
+    }
+  </style>
 </head>
 <body>
 
@@ -69,6 +127,7 @@
 
       if (carrinho.length === 0) {
         carrinhoContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+        document.getElementById("contador-carrinho").textContent = 0;
         return;
       }
 
@@ -81,6 +140,7 @@
             <div>
               <h3>${item.nome}</h3>
               <p>R$ ${item.preco.toFixed(2)}</p>
+              ${item.tamanho ? `<p><b>Tamanho:</b> ${item.tamanho}</p>` : ""}
               <button onclick="confirmarRemocao(${index}, '${item.nome}')">Remover</button>
             </div>
           </div>
@@ -89,7 +149,7 @@
         <h2>Total: R$ ${total.toFixed(2)}</h2>
       `;
 
-      // Atualiza contador de carrinho no topo
+      // Atualiza contador no topo
       document.getElementById("contador-carrinho").textContent = carrinho.length;
     }
 

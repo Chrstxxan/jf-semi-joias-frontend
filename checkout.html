@@ -15,7 +15,7 @@
     }
 
     #frete-info span.prazo {
-      color: #ff6fa7; /* Rosa da identidade da loja */
+      color: #ff6fa7;
       font-style: italic;
       font-weight: 500;
       margin-left: 5px;
@@ -47,7 +47,25 @@
     #btn-pagar img {
       width: 22px;
       height: 22px;
-      filter: brightness(0) invert(1); /* deixa branco o SVG se for escuro */
+      filter: brightness(0) invert(1);
+    }
+
+    .item-carrinho {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+    }
+    .item-carrinho img {
+      border-radius: 8px;
+    }
+    .item-carrinho span {
+      flex: 1;
+      font-weight: 500;
+    }
+    .item-carrinho small {
+      color: #666;
     }
   </style>
 </head>
@@ -141,8 +159,11 @@
       lista.innerHTML = carrinho.map(p => `
         <div class="item-carrinho">
           <img src="${p.imagem}" alt="${p.nome}" width="60" />
-          <span>${p.nome}</span>
-          <small>R$ ${p.preco.toFixed(2)}</small>
+          <div>
+            <span>${p.nome}</span>
+            ${p.tamanho ? `<p><b>Tamanho:</b> ${p.tamanho}</p>` : ""}
+            <small>R$ ${p.preco.toFixed(2)}</small>
+          </div>
         </div>
       `).join("");
 
@@ -195,7 +216,6 @@
         const data = await res.json();
         valorFrete = parseFloat(data.Valor.replace(",", ".")) || 0;
 
-        // ✅ Exibe frete + prazo médio e máximo (Correios + tempo da loja)
         document.getElementById("frete-info").innerHTML =
           `Frete: R$ ${valorFrete.toFixed(2)} <span class="prazo">(${data.PrazoMedio} a ${data.PrazoMaximo} dias úteis)</span>`;
 
@@ -249,7 +269,8 @@
           body: JSON.stringify({
             itens: carrinho.map(p => ({
               produtoId: p._id,
-              quantidade: p.quantidade || 1
+              quantidade: p.quantidade || 1,
+              tamanho: p.tamanho || null // 👈 Envia o tamanho do anel
             })),
             enderecoEntrega,
             frete: valorFrete
@@ -259,7 +280,6 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.erro || "Erro ao criar pagamento");
 
-        // Limpa o carrinho e vai pro checkout do MP
         localStorage.removeItem("carrinho");
         window.location.href = data.init_point;
       } catch (err) {
