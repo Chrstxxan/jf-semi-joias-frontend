@@ -62,8 +62,12 @@ function abrirSeletorTamanho(tamanhos) {
 const produtosContainer = document.querySelector('.produtos-container');
 
 async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
+  produtosContainer.innerHTML = '<p>Carregando produtos...</p>';
+  
   try {
     const resposta = await fetch(`${API}/produtos`);
+    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+    
     const produtos = await resposta.json();
     produtosContainer.innerHTML = '';
 
@@ -95,7 +99,6 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
       card.className = 'produto';
       const primeiraImagem = (produto.imagens && produto.imagens[0]) ? produto.imagens[0] : 'icons/logo.png';
 
-      // passamos o id; a função comprar buscará categoria e tamanhos no backend quando necessário
       card.innerHTML = `
         <div class="favorito-btn" onclick="toggleFavorito('${produto._id}', this)">
           <img src="icons/star.svg" alt="Favoritar" />
@@ -111,7 +114,15 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
 
   } catch (erro) {
     console.error('Erro ao carregar produtos:', erro);
-    produtosContainer.innerHTML = '<p>Não foi possível carregar os produtos.</p>';
+    produtosContainer.innerHTML = `
+      <div style="text-align:center; padding:30px;">
+        <p>💎 Estamos iniciando nossos servidores, isso pode levar alguns segundos...</p>
+        <p style="font-size:14px;color:#777;">Se o problema persistir, atualize a página ou tente novamente em instantes.</p>
+        <button onclick="window.location.reload()" style="margin-top:10px; background:#ff6fa7; color:#fff; border:none; border-radius:6px; padding:8px 14px; cursor:pointer;">
+          Recarregar
+        </button>
+      </div>
+    `;
   }
 }
 
@@ -124,7 +135,6 @@ function verDetalhes(idProduto) {
 
 // ================================
 // ADICIONAR AO CARRINHO (HOME)
-// Força escolher tamanho se for "aneis"
 // ================================
 async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
   const token = localStorage.getItem('token');
@@ -143,7 +153,7 @@ async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
   }
 
   try {
-    // Busca o produto para checar categoria e tamanhos
+    // Busca o produto completo pra saber se é anel
     const resp = await fetch(`${API}/produtos/${idProduto}`);
     const produto = await resp.json();
 
@@ -155,7 +165,7 @@ async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
         return;
       }
       tamanho = await abrirSeletorTamanho(tamanhos);
-      if (!tamanho) return; // usuário cancelou
+      if (!tamanho) return; // cancelado
     }
 
     const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
@@ -197,7 +207,7 @@ async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
 }
 
 // ================================
-// FAVORITAR PRODUTO (HOME)
+// FAVORITAR PRODUTO
 // ================================
 async function toggleFavorito(idProduto, btn) {
   const token = localStorage.getItem("token");
@@ -239,7 +249,7 @@ async function toggleFavorito(idProduto, btn) {
 }
 
 // ================================
-// CARREGAR FAVORITOS DO USUÁRIO (HOME)
+// CARREGAR FAVORITOS DO USUÁRIO
 // ================================
 async function carregarFavoritosUsuario() {
   const token = localStorage.getItem("token");
