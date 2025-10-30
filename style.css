@@ -1244,3 +1244,47 @@ html, body {
     font-size: 12px;
   }
 }
+
+/* ===== Navbar categorias ===== */
+.categorias {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.categoria {
+  color: #ff4b8f;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.categoria:hover {
+  color: #ff2f82;
+}
+
+.categoria.ativo {
+  text-decoration: underline;
+}
+
+.divisor {
+  color: #ffb8d2;
+  font-weight: 400;
+  font-size: 18px;
+  user-select: none;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .categorias {
+    gap: 5px;
+  }
+  .divisor {
+    font-size: 16px;
+    opacity: 0.5;
+  }
+}
+

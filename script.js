@@ -352,6 +352,16 @@ function inicializarNavbar() {
     link.addEventListener("click", async (e) => {
       e.preventDefault();
       const categoria = link.textContent.trim();
+
+      // Se clicar em "Início", carrega todos os produtos
+      if (link.classList.contains("inicio")) {
+        categorias.forEach(l => l.classList.remove("ativo"));
+        link.classList.add("ativo");
+        await carregarProdutos();
+        await carregarFavoritosUsuario();
+        return;
+      }
+
       categorias.forEach(l => l.classList.remove("ativo"));
       link.classList.add("ativo");
       await carregarProdutos(categoria);
