@@ -341,6 +341,43 @@ function inicializarBolhas() {
 }
 
 // ================================
+// ✅ VERIFICAR STATUS REAL PÓS-PAGAMENTO (3 estados)
+// ================================
+async function verificarStatusPedido() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const status = urlParams.get("pagamento");
+  if (!status) return;
+
+  const token = localStorage.getItem("token");
+
+  if (status === "failure") {
+    Swal.fire("❌ Pagamento não aprovado", "Seu pagamento foi recusado ou cancelado.", "error");
+    return;
+  }
+
+  if (status === "success" || status === "pending") {
+    try {
+      const resp = await fetch(`${API}/orders/ultimo`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const order = await resp.json();
+
+      if (order.statusPagamento === "pago") {
+        Swal.fire("✅ Pagamento aprovado!", "Seu pedido foi confirmado com sucesso!", "success");
+      } else if (order.statusPagamento === "pendente") {
+        Swal.fire("⏳ Pagamento em análise", "Estamos aguardando a confirmação do Mercado Pago.", "info");
+      } else if (order.statusPagamento === "rejeitado") {
+        Swal.fire("❌ Pagamento rejeitado", "O Mercado Pago não aprovou a transação.", "error");
+      } else {
+        Swal.fire("ℹ️ Retornando do pagamento", "O status será atualizado em breve.", "info");
+      }
+    } catch {
+      Swal.fire("ℹ️ Retornando do pagamento", "O status será atualizado em breve.", "info");
+    }
+  }
+}
+
+// ================================
 // NAVBAR FUNCIONAL (FILTRO + BUSCA)
 // ================================
 function inicializarNavbar() {
@@ -393,4 +430,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     await carregarProdutos(categoria, busca);
     await carregarFavoritosUsuario();
   }
+
+  // 🧠 Verifica status de pagamento na volta do checkout
+  await verificarStatusPedido();
 });
