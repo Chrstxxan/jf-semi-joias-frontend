@@ -31,15 +31,22 @@ function irParaCarrinho() {
 // ================================
 function abrirSeletorTamanho(tamanhos) {
   return new Promise((resolve) => {
+    let tamanhoEscolhido = null;
+
     const html = `
       <div style="text-align:center;">
-        ${tamanhos.map((t) => `<span class="size-chip" data-size="${t}" style="
-          display:inline-block;padding:10px 12px;border-radius:10px;
-          border:1.5px solid #ff4b8f;color:#ff4b8f;font-weight:600;margin:6px;
-          cursor:pointer;user-select:none;
-        ">${t}</span>`).join("")}
+        ${tamanhos
+          .map(
+            (t) => `<span class="size-chip" data-size="${t}" style="
+              display:inline-block;padding:10px 12px;border-radius:10px;
+              border:1.5px solid #ff4b8f;color:#ff4b8f;font-weight:600;margin:6px;
+              cursor:pointer;user-select:none;
+            ">${t}</span>`
+          )
+          .join("")}
       </div>
     `;
+
     Swal.fire({
       title: "Escolha o tamanho",
       html,
@@ -49,19 +56,35 @@ function abrirSeletorTamanho(tamanhos) {
       color: "#333",
       width: 480,
       didOpen: () => {
-        document.querySelectorAll(".size-chip").forEach(chip => {
+        document.querySelectorAll(".size-chip").forEach((chip) => {
           chip.addEventListener("click", () => {
-            const valor = chip.getAttribute("data-size");
+            if (tamanhoEscolhido) return; // evita múltiplos cliques
+            tamanhoEscolhido = chip.getAttribute("data-size");
+
+            // feedback visual instantâneo
+            document.querySelectorAll(".size-chip").forEach(c => {
+              c.style.background = "#fff";
+              c.style.color = "#ff4b8f";
+            });
             chip.style.background = "#ff4b8f";
             chip.style.color = "#fff";
-            setTimeout(() => { Swal.close(); resolve(valor); }, 120);
+
+            // fecha popup e retorna o valor
+            setTimeout(() => {
+              Swal.close();
+              resolve(tamanhoEscolhido);
+            }, 150);
           });
         });
       },
-      willClose: () => { resolve(null); }
+      willClose: () => {
+        // se o usuário fechar o popup sem escolher, retorna null
+        if (!tamanhoEscolhido) resolve(null);
+      },
     });
   });
 }
+
 
 // ================================
 // CARREGAR PRODUTOS NA HOME
