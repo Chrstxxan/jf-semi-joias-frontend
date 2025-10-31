@@ -307,16 +307,31 @@
     window.addEventListener("DOMContentLoaded", carregarResumo);
   </script>
 
+  <  <!-- Bibliotecas -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="script.js"></script>
+
   <script>
+    // ✅ Recarrega navbar e contador
     window.addEventListener("load", () => {
-      console.log("🔁 Recarregando navbar/bolhas...");
-      if (typeof inicializarNavbar === "function") inicializarNavbar();
-      if (typeof inicializarBolhas === "function") inicializarBolhas();
-      if (typeof atualizarContadorCarrinho === "function") atualizarContadorCarrinho();
+      console.log("🔁 Recarregando navbar no checkout...");
+
+      // Recarrega categorias e busca
+      if (typeof inicializarNavbar === "function") {
+        inicializarNavbar();
+        console.log("✅ Navbar inicializada no checkout");
+      }
+
+      // Recarrega contador de carrinho
+      if (typeof atualizarContadorCarrinho === "function") {
+        atualizarContadorCarrinho();
+      }
+
+      // Como o checkout não tem bolhas, não chama inicializarBolhas
     });
   </script>
+</body>
+</html>
 
 </body>
 </html>
