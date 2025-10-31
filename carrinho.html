@@ -256,11 +256,18 @@
     // ================================
     window.addEventListener('DOMContentLoaded', carregarCarrinho);
 
-    document.addEventListener('DOMContentLoaded', () => {
-    try { inicializarNavbar(); } catch (e) {}
-    try { inicializarBolhas(); } catch (e) {}
-    try { atualizarContadorCarrinho(); } catch (e) {}
-  });
+  </script>
+
+<!-- 🔁 Garante que o script global carregue e inicialize -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="script.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      console.log("🔁 Recarregando navbar/bolhas no carrinho...");
+      if (typeof inicializarNavbar === "function") inicializarNavbar();
+      if (typeof inicializarBolhas === "function") inicializarBolhas();
+      if (typeof atualizarContadorCarrinho === "function") atualizarContadorCarrinho();
+    });
   </script>
 
 </body>
