@@ -381,6 +381,19 @@
     });
   </script>
 
+  <script>
+    // 🧠 Garante navbar funcional em páginas fora da home
+    window.addEventListener("DOMContentLoaded", () => {
+      console.log("🔁 Recarregando navbar manualmente...");
+      if (typeof inicializarNavbar === "function") {
+        inicializarNavbar();
+        console.log("✅ Navbar inicializada no produto.html");
+      } else {
+        console.warn("⚠️ inicializarNavbar não disponível!");
+      }
+    });
+  </script>
+
   <script src="script.js"></script>
 </body>
 </html>
