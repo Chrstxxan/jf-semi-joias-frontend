@@ -255,6 +255,12 @@
     // 🚀 Inicialização
     // ================================
     window.addEventListener('DOMContentLoaded', carregarCarrinho);
+
+    document.addEventListener('DOMContentLoaded', () => {
+    try { inicializarNavbar(); } catch (e) {}
+    try { inicializarBolhas(); } catch (e) {}
+    try { atualizarContadorCarrinho(); } catch (e) {}
+  });
   </script>
 
 </body>
