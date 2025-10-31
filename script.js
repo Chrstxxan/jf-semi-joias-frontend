@@ -183,21 +183,41 @@ async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
   }
 
   try {
-    // Busca o produto completo pra saber se é anel
+    console.log("🛍️ Iniciando fluxo de compra...");
     const resp = await fetch(`${API}/produtos/${idProduto}`);
     const produto = await resp.json();
+    console.log("📦 Produto retornado:", produto);
 
     let tamanho = null;
-    if (produto?.categoria === "aneis") {
-      const tamanhos = Array.isArray(produto.tamanhosDisponiveis) ? produto.tamanhosDisponiveis : [];
+    // 🔧 Corrige comparação ignorando acentos
+    if (removerAcentos(produto?.categoria || "").toLowerCase() === "aneis") {
+      console.log("💍 Produto é um anel — abrindo seletor de tamanho...");
+      const tamanhos = Array.isArray(produto.tamanhosDisponiveis)
+        ? produto.tamanhosDisponiveis
+        : [];
+
       if (!tamanhos.length) {
-        await Swal.fire({ icon: "warning", title: "Este anel está sem tamanhos cadastrados.", confirmButtonColor: "#ff6fa7" });
+        await Swal.fire({
+          icon: "warning",
+          title: "Este anel está sem tamanhos cadastrados.",
+          confirmButtonColor: "#ff6fa7",
+        });
+        console.warn("⚠️ Anel sem tamanhos disponíveis!");
         return;
       }
+
       tamanho = await abrirSeletorTamanho(tamanhos);
-      if (!tamanho) return; // cancelado
+      if (!tamanho) {
+        console.log("🛑 Usuário cancelou a seleção de tamanho.");
+        return; // cancelado
+      }
+
+      console.log("✅ Tamanho escolhido:", tamanho);
+    } else {
+      console.log("🧿 Produto não é anel — seguindo fluxo normal.");
     }
 
+    // 💾 Adiciona ao carrinho
     const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
     carrinho.push({
       _id: idProduto,
@@ -205,13 +225,14 @@ async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
       preco: precoProduto,
       imagem: imagemProduto,
       quantidade: 1,
-      tamanho
+      tamanho,
     });
 
     localStorage.setItem('carrinho', JSON.stringify(carrinho));
     atualizarContadorCarrinho();
+    console.log("🛒 Produto salvo no carrinho:", carrinho);
 
-    Swal.fire({
+    await Swal.fire({
       title: 'Produto adicionado!',
       html: `
         <img src="${imagemProduto}" alt="${nomeProduto}" style="width:120px;border-radius:10px;margin-bottom:15px;">
@@ -227,12 +248,18 @@ async function comprar(idProduto, nomeProduto, precoProduto, imagemProduto) {
       background: '#fffafc',
       color: '#333',
     }).then((result) => {
-      if (result.isConfirmed) window.location.href = 'carrinho.html';
+      if (result.isConfirmed) {
+        console.log("➡️ Indo para o carrinho...");
+        window.location.href = 'carrinho.html';
+      }
     });
-
   } catch (e) {
-    console.error(e);
-    Swal.fire({ icon: "error", title: "Erro ao adicionar ao carrinho", confirmButtonColor: "#ff6fa7" });
+    console.error("💥 Erro no fluxo de compra:", e);
+    Swal.fire({
+      icon: "error",
+      title: "Erro ao adicionar ao carrinho",
+      confirmButtonColor: "#ff6fa7",
+    });
   }
 }
 
