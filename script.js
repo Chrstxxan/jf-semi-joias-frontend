@@ -476,7 +476,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   const categoria = params.get("categoria");
   const busca = params.get("busca");
 
-  if (produtosContainer) {
+  // 🧩 Só carrega produtos se estiver na home
+  if (document.querySelector('.produtos-container')) {
     await carregarProdutos(categoria, busca);
     await carregarFavoritosUsuario();
   }
