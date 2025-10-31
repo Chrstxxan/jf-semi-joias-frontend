@@ -444,8 +444,22 @@ function inicializarNavbar() {
       if (link.classList.contains("inicio")) {
         categorias.forEach(l => l.classList.remove("ativo"));
         link.classList.add("ativo");
+
+        // Se estiver fora da home, redireciona pra index
+        if (!window.location.pathname.endsWith("index.html")) {
+          window.location.href = "index.html";
+          return;
+        }
+
         await carregarProdutos();
         await carregarFavoritosUsuario();
+        return;
+      }
+
+      // 🔗 Se estiver fora da home, redireciona para o index com o filtro
+      if (!window.location.pathname.endsWith("index.html")) {
+        const categoriaParam = encodeURIComponent(categoria.toLowerCase());
+        window.location.href = `index.html?categoria=${categoriaParam}`;
         return;
       }
 
@@ -459,6 +473,14 @@ function inicializarNavbar() {
   botaoBuscar?.addEventListener("click", async () => {
     const termo = inputBusca.value.trim();
     if (!termo) return;
+
+    // 🔗 Se estiver fora da home, redireciona para index com busca
+    if (!window.location.pathname.endsWith("index.html")) {
+      const buscaParam = encodeURIComponent(termo);
+      window.location.href = `index.html?busca=${buscaParam}`;
+      return;
+    }
+
     await carregarProdutos(null, termo);
     await carregarFavoritosUsuario();
   });
