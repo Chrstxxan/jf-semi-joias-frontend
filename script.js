@@ -493,47 +493,60 @@ function inicializarDropdown() {
   const dropbtn = document.querySelector(".dropbtn");
   const dropdownContent = document.querySelector(".dropdown-content");
 
-  if (!dropbtn || !dropdownContent) return;
+  if (!dropbtn || !dropdownContent) {
+    console.warn("⚠️ Navbar dropdown não encontrado ainda, tentando novamente...");
+    // tenta novamente em 300ms se ainda não carregou (ex: páginas com script.js no final)
+    setTimeout(inicializarDropdown, 300);
+    return;
+  }
 
-  // Detecta se é mobile (toque) ou desktop (mouse)
+  // Remove handlers antigos pra evitar duplo clique
+  dropbtn.replaceWith(dropbtn.cloneNode(true));
+  dropdownContent.classList.remove("show", "fade-out");
+
+  // Rebusca elementos após clone
+  const novoDropbtn = document.querySelector(".dropbtn");
+
   const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
   if (isMobile) {
-    // 📱 MOBILE → abre no clique
-    dropbtn.addEventListener("click", (e) => {
+    // 📱 MOBILE → abre no clique com debounce
+    let isOpen = false;
+    novoDropbtn.addEventListener("click", (e) => {
       e.preventDefault();
-      dropdownContent.classList.toggle("show");
-      dropbtn.classList.toggle("active");
+      e.stopPropagation();
+      isOpen = !isOpen;
+      novoDropbtn.classList.toggle("active", isOpen);
+      dropdownContent.classList.toggle("show", isOpen);
     });
 
-    // Fecha ao clicar fora
     document.addEventListener("click", (e) => {
       if (!e.target.closest(".dropdown")) {
+        isOpen = false;
+        novoDropbtn.classList.remove("active");
         dropdownContent.classList.remove("show");
-        dropbtn.classList.remove("active");
       }
     });
   } else {
-    // 💻 DESKTOP → abre no hover
-    dropbtn.addEventListener("mouseenter", () => {
+    // 💻 DESKTOP → abre no hover (mantido igual)
+    novoDropbtn.addEventListener("mouseenter", () => {
       dropdownContent.classList.add("show");
-      dropbtn.classList.add("active");
+      novoDropbtn.classList.add("active");
     });
 
-    // Fecha quando o mouse sai
-    dropbtn.addEventListener("mouseleave", () => {
+    novoDropbtn.addEventListener("mouseleave", () => {
       dropdownContent.classList.remove("show");
-      dropbtn.classList.remove("active");
+      novoDropbtn.classList.remove("active");
     });
 
     dropdownContent.addEventListener("mouseenter", () => {
       dropdownContent.classList.add("show");
-      dropbtn.classList.add("active");
+      novoDropbtn.classList.add("active");
     });
 
     dropdownContent.addEventListener("mouseleave", () => {
       dropdownContent.classList.remove("show");
-      dropbtn.classList.remove("active");
+      novoDropbtn.classList.remove("active");
     });
   }
 }
