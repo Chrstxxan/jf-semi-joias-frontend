@@ -487,26 +487,42 @@ function inicializarNavbar() {
 }
 
 // ================================
-// MENU DROPDOWN RESPONSIVO
+// MENU DROPDOWN RESPONSIVO (COM FECHAMENTO SUAVE)
 // ================================
 function inicializarDropdown() {
   const dropbtn = document.querySelector(".dropbtn");
-  const dropdownContent = document.querySelector(".dropdown-content");
+  const dropdown = document.querySelector(".dropdown-content");
+  if (!dropbtn || !dropdown) return;
 
-  if (!dropbtn || !dropdownContent) return;
+  let timeoutId = null;
 
-  // Abre e fecha no clique (mobile)
+  // Abre/fecha com clique
   dropbtn.addEventListener("click", (e) => {
-    e.preventDefault();
-    dropdownContent.classList.toggle("mostrar");
+    e.stopPropagation();
+    const isOpen = dropdown.classList.contains("show");
+
+    // Fecha com animação se já estiver aberto
+    if (isOpen) {
+      dropdown.classList.add("fade-out");
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        dropdown.classList.remove("show", "fade-out");
+      }, 100);
+      return;
+    }
+
+    dropdown.classList.add("show");
   });
 
-  // Fecha se clicar fora (mobile)
+  // Fecha ao clicar fora
   document.addEventListener("click", (e) => {
-    if (!e.target.closest(".dropdown")) {
-      dropdownContent.classList.remove("mostrar");
+    if (!dropdown.contains(e.target) && !dropbtn.contains(e.target)) {
+      dropdown.classList.remove("show");
     }
   });
+
+  // Fecha ao rolar (melhora UX no mobile)
+  window.addEventListener("scroll", () => dropdown.classList.remove("show"));
 }
 
 // ================================
@@ -517,7 +533,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   inicializarBolhas();
   inicializarNavbar();
   inicializarDropdown();
-  
+
   const params = new URLSearchParams(window.location.search);
   const categoria = params.get("categoria");
   const busca = params.get("busca");

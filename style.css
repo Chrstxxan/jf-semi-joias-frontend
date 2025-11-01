@@ -1304,6 +1304,17 @@ html, body {
   cursor: pointer;
   font-size: 15px;
   transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* 🔻 Ícone da setinha */
+.dropbtn::after {
+  content: "⌄";
+  font-size: 13px;
+  position: relative;
+  top: 1px; /* ajusta leve alinhamento vertical */
 }
 
 .dropbtn:hover {
@@ -1320,6 +1331,7 @@ html, body {
   border-radius: 10px;
   z-index: 1000;
   padding: 10px 0;
+  animation: fadeIn 0.15s ease-in-out;
 }
 
 .dropdown-content a {
@@ -1337,9 +1349,26 @@ html, body {
   color: #ff2f82;
 }
 
-/* Exibe no hover no desktop */
-.dropdown:hover .dropdown-content {
-  display: block;
+/* Mostra o menu */
+.dropdown-content.show {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Efeito de fechamento suave */
+.dropdown-content.fade-out {
+  animation: fadeOut 0.1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-5px); }
 }
 
 /* ============================= */
@@ -1362,7 +1391,7 @@ html, body {
     margin-top: 6px;
   }
 
-  .dropdown-content.mostrar {
+  .dropdown-content.show {
     display: block;
   }
 
@@ -1375,3 +1404,4 @@ html, body {
     border-bottom: none;
   }
 }
+

@@ -84,27 +84,29 @@
 
 <body>
   <nav id="faixa-categorias">
-    <div class="categorias">
-      <a href="#" class="categoria inicio">Início</a>
-      <span class="divisor">|</span>
-      <a href="#" class="categoria">Conjuntos</a>
-      <span class="divisor">|</span>
-      <a href="#" class="categoria">Pulseiras</a>
-      <span class="divisor">|</span>
-      <a href="#" class="categoria">Brincos</a>
-      <span class="divisor">|</span>
-      <a href="#" class="categoria">Anéis</a>
+  <div class="categorias">
+    <a href="index.html" class="categoria inicio">Início</a>
+    <span class="divisor">|</span>
+
+    <div class="dropdown">
+      <button class="dropbtn">Categorias</button>
+      <div class="dropdown-content">
+        <a href="#" class="categoria">Conjuntos</a>
+        <a href="#" class="categoria">Anéis</a>
+        <a href="#" class="categoria">Brincos</a>
+        <a href="#" class="categoria">Pulseiras</a>
+        <a href="#" class="categoria">Correntes</a>
+      </div>
     </div>
+  </div>
 
-
-
-    <div class="busca">
-      <input type="text" placeholder="Digite aqui o que procura..." />
-      <button id="botao-buscar">
-        <img src="./icons/search.svg" width="20" alt="Buscar" />
-      </button>
-    </div>
-  </nav>
+  <div class="busca">
+    <input type="text" placeholder="Digite aqui o que procura..." />
+    <button id="botao-buscar" title="Buscar">
+      <img src="./icons/search.svg" width="20" alt="Buscar" />
+    </button>
+  </div>
+</nav>
 
   <header>
     <h1>JF Semi Joias</h1>
@@ -225,6 +227,7 @@
     window.addEventListener("load", () => {
       console.log("🔁 Recarregando navbar/bolhas...");
       if (typeof inicializarNavbar === "function") inicializarNavbar();
+      if (typeof inicializarDropdown === "function") inicializarDropdown();
       if (typeof inicializarBolhas === "function") inicializarBolhas();
       if (typeof atualizarContadorCarrinho === "function") atualizarContadorCarrinho();
     });
