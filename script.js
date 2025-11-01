@@ -487,13 +487,37 @@ function inicializarNavbar() {
 }
 
 // ================================
+// MENU DROPDOWN RESPONSIVO
+// ================================
+function inicializarDropdown() {
+  const dropbtn = document.querySelector(".dropbtn");
+  const dropdownContent = document.querySelector(".dropdown-content");
+
+  if (!dropbtn || !dropdownContent) return;
+
+  // Abre e fecha no clique (mobile)
+  dropbtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    dropdownContent.classList.toggle("mostrar");
+  });
+
+  // Fecha se clicar fora (mobile)
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown")) {
+      dropdownContent.classList.remove("mostrar");
+    }
+  });
+}
+
+// ================================
 // INICIALIZAÇÃO GERAL
 // ================================
 window.addEventListener("DOMContentLoaded", async () => {
   atualizarContadorCarrinho();
   inicializarBolhas();
   inicializarNavbar();
-
+  inicializarDropdown();
+  
   const params = new URLSearchParams(window.location.search);
   const categoria = params.get("categoria");
   const busca = params.get("busca");
