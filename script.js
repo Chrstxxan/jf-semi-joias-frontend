@@ -491,38 +491,51 @@ function inicializarNavbar() {
 // ================================
 function inicializarDropdown() {
   const dropbtn = document.querySelector(".dropbtn");
-  const dropdown = document.querySelector(".dropdown-content");
-  if (!dropbtn || !dropdown) return;
+  const dropdownContent = document.querySelector(".dropdown-content");
 
-  let timeoutId = null;
+  if (!dropbtn || !dropdownContent) return;
 
-  // Abre/fecha com clique
-  dropbtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    const isOpen = dropdown.classList.contains("show");
+  // Detecta se é mobile (toque) ou desktop (mouse)
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
 
-    // Fecha com animação se já estiver aberto
-    if (isOpen) {
-      dropdown.classList.add("fade-out");
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        dropdown.classList.remove("show", "fade-out");
-      }, 100);
-      return;
-    }
+  if (isMobile) {
+    // 📱 MOBILE → abre no clique
+    dropbtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      dropdownContent.classList.toggle("show");
+      dropbtn.classList.toggle("active");
+    });
 
-    dropdown.classList.add("show");
-  });
+    // Fecha ao clicar fora
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".dropdown")) {
+        dropdownContent.classList.remove("show");
+        dropbtn.classList.remove("active");
+      }
+    });
+  } else {
+    // 💻 DESKTOP → abre no hover
+    dropbtn.addEventListener("mouseenter", () => {
+      dropdownContent.classList.add("show");
+      dropbtn.classList.add("active");
+    });
 
-  // Fecha ao clicar fora
-  document.addEventListener("click", (e) => {
-    if (!dropdown.contains(e.target) && !dropbtn.contains(e.target)) {
-      dropdown.classList.remove("show");
-    }
-  });
+    // Fecha quando o mouse sai
+    dropbtn.addEventListener("mouseleave", () => {
+      dropdownContent.classList.remove("show");
+      dropbtn.classList.remove("active");
+    });
 
-  // Fecha ao rolar (melhora UX no mobile)
-  window.addEventListener("scroll", () => dropdown.classList.remove("show"));
+    dropdownContent.addEventListener("mouseenter", () => {
+      dropdownContent.classList.add("show");
+      dropbtn.classList.add("active");
+    });
+
+    dropdownContent.addEventListener("mouseleave", () => {
+      dropdownContent.classList.remove("show");
+      dropbtn.classList.remove("active");
+    });
+  }
 }
 
 // ================================
