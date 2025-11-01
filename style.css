@@ -1303,7 +1303,7 @@ html, body {
   border: none;
   cursor: pointer;
   font-size: 15px;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -1314,7 +1314,13 @@ html, body {
   content: "⌄";
   font-size: 13px;
   position: relative;
-  top: 1px; /* ajusta leve alinhamento vertical */
+  top: 1px; /* alinhamento fino */
+  transition: transform 0.2s ease;
+}
+
+/* Gira pra cima quando o menu estiver aberto */
+.dropbtn.active::after {
+  transform: rotate(180deg);
 }
 
 .dropbtn:hover {
@@ -1322,12 +1328,13 @@ html, body {
   text-decoration: underline;
 }
 
+/* 🧩 Conteúdo do dropdown */
 .dropdown-content {
   display: none;
   position: absolute;
   background-color: #fff;
   min-width: 160px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   z-index: 1000;
   padding: 10px 0;
@@ -1361,14 +1368,27 @@ html, body {
   animation: fadeOut 0.1s ease-in-out;
 }
 
+/* Animações */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; transform: translateY(0); }
-  to { opacity: 0; transform: translateY(-5px); }
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
 }
 
 /* ============================= */
@@ -1377,9 +1397,13 @@ html, body {
 @media (max-width: 768px) {
   .dropbtn {
     background-color: #ff6fa7;
-    color: #fff;
+    color: #fff; /* deixa o texto branco */
     border-radius: 8px;
     padding: 6px 12px;
+  }
+
+  .dropbtn::after {
+    color: #fff; /* deixa a setinha branca também */
   }
 
   .dropdown-content {
@@ -1403,5 +1427,10 @@ html, body {
   .dropdown-content a:last-child {
     border-bottom: none;
   }
-}
 
+  /* Mantém a seta branca mesmo ativa */
+  .dropbtn.active::after {
+    transform: rotate(180deg);
+    color: #fff;
+  }
+}
