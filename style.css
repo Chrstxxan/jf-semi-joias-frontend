@@ -1293,8 +1293,7 @@ html, body {
 /* ============================= */
 .dropdown {
   position: relative;
-  display: inline-flex;
-  align-items: center; /* alinhamento perfeito com os outros links */
+  display: inline-block;
   vertical-align: middle;
 }
 
@@ -1305,13 +1304,13 @@ html, body {
   border: none;
   cursor: pointer;
   font-size: 15px;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
   display: inline-flex;
-  align-items: center; /* texto + setinha centralizados */
+  align-items: center;
   gap: 4px;
   padding: 0;
-  line-height: 1.1;
-  margin-top: -1px; /* ajuste fino de altura */
+  line-height: 1;
+  vertical-align: middle;
 }
 
 /* 🔻 Ícone da setinha */
@@ -1328,12 +1327,8 @@ html, body {
   transform: rotate(180deg);
 }
 
-.dropbtn:hover {
-  color: #ff6fa7;
-  text-decoration: underline;
-}
-
-/* Mantém o texto colorido enquanto o mouse está no menu */
+/* Hover (desktop) */
+.dropbtn:hover,
 .dropdown:hover .dropbtn {
   color: #ff6fa7;
   text-decoration: underline;
@@ -1343,6 +1338,7 @@ html, body {
 .dropdown-content {
   display: none;
   position: absolute;
+  left: 0;
   background-color: #fff;
   min-width: 160px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -1352,7 +1348,7 @@ html, body {
   animation: fadeIn 0.15s ease-in-out;
 }
 
-/* Mostra no hover (desktop) */
+/* Mostra o menu no hover (desktop) */
 .dropdown:hover .dropdown-content {
   display: flex;
   flex-direction: column;
@@ -1374,38 +1370,10 @@ html, body {
   color: #ff2f82;
 }
 
-/* Efeito suave */
-.dropdown-content.show {
-  display: flex;
-  flex-direction: column;
-  animation: fadeIn 0.15s ease-in-out;
-}
-
-.dropdown-content.fade-out {
-  animation: fadeOut 0.1s ease-in-out;
-}
-
-/* Animações */
+/* Efeitos */
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================= */
@@ -1413,17 +1381,16 @@ html, body {
 /* ============================= */
 @media (max-width: 768px) {
   .dropdown {
-    width: 100%; /* ocupa toda a largura */
+    display: inline-block;
+    width: auto; /* mantém lado a lado com "Início" */
   }
 
   .dropbtn {
     background-color: #ff6fa7;
     color: #fff;
     border-radius: 8px;
-    padding: 8px 14px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
+    padding: 6px 12px;
+    display: inline-flex;
     align-items: center;
     gap: 5px;
   }
@@ -1435,31 +1402,31 @@ html, body {
 
   .dropbtn.active {
     background-color: #ff4b8f;
-    color: #fff;
   }
 
   .dropdown-content {
-    position: relative;
-    top: 6px;
-    width: 100%;
-    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    transform: translateY(5px);
+    width: 180px;
     background-color: #fff;
-    border-radius: 8px;
-    margin-top: 4px;
-    box-shadow: 0 2px 10px rgba(255, 111, 167, 0.15);
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(255, 111, 167, 0.2);
+    display: none;
     overflow: hidden;
     text-align: center;
   }
 
   .dropdown-content.show {
     display: block;
+    animation: fadeIn 0.15s ease-in-out;
   }
 
   .dropdown-content a {
     display: block;
     padding: 10px 0;
     border-bottom: 1px solid #ffe4ec;
-    color: #ff4b8f;
   }
 
   .dropdown-content a:last-child {
@@ -1468,6 +1435,6 @@ html, body {
 
   .dropbtn.active::after {
     transform: rotate(180deg);
-    color: #fff;
   }
 }
+
