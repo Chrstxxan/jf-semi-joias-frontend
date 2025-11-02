@@ -1294,7 +1294,6 @@ html, body {
 .dropdown {
   position: relative;
   display: inline-block;
-  vertical-align: middle;
 }
 
 .dropbtn {
@@ -1304,21 +1303,18 @@ html, body {
   border: none;
   cursor: pointer;
   font-size: 15px;
-  transition: color 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s ease;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 0;
-  line-height: 1;
-  vertical-align: middle;
+  gap: 5px;
 }
 
 /* 🔻 Ícone da setinha */
 .dropbtn::after {
   content: "⌄";
-  font-size: 11px;
+  font-size: 13px;
   position: relative;
-  top: -1px;
+  top: 1px; /* alinhamento fino */
   transition: transform 0.2s ease;
 }
 
@@ -1327,9 +1323,7 @@ html, body {
   transform: rotate(180deg);
 }
 
-/* Hover (desktop) */
-.dropbtn:hover,
-.dropdown:hover .dropbtn {
+.dropbtn:hover {
   color: #ff6fa7;
   text-decoration: underline;
 }
@@ -1338,7 +1332,6 @@ html, body {
 .dropdown-content {
   display: none;
   position: absolute;
-  left: 0;
   background-color: #fff;
   min-width: 160px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -1348,13 +1341,6 @@ html, body {
   animation: fadeIn 0.15s ease-in-out;
 }
 
-/* Mostra o menu no hover (desktop) */
-.dropdown:hover .dropdown-content {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Links internos */
 .dropdown-content a {
   color: #ff4b8f;
   padding: 8px 16px;
@@ -1370,62 +1356,71 @@ html, body {
   color: #ff2f82;
 }
 
-/* Efeitos */
+/* Mostra o menu */
+.dropdown-content.show {
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Efeito de fechamento suave */
+.dropdown-content.fade-out {
+  animation: fadeOut 0.1s ease-in-out;
+}
+
+/* Animações */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
 }
 
 /* ============================= */
 /* 📱 MOBILE - Menu Dropdown Toque */
 /* ============================= */
 @media (max-width: 768px) {
-  .dropdown {
-    display: inline-block;
-    width: auto; /* mantém lado a lado com "Início" */
-  }
-
   .dropbtn {
     background-color: #ff6fa7;
-    color: #fff;
+    color: #fff; /* deixa o texto branco */
     border-radius: 8px;
     padding: 6px 12px;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
   }
 
   .dropbtn::after {
-    color: #fff;
-    top: 0;
-  }
-
-  .dropbtn.active {
-    background-color: #ff4b8f;
+    color: #fff; /* deixa a setinha branca também */
   }
 
   .dropdown-content {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    transform: translateY(5px);
-    width: 180px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(255, 111, 167, 0.2);
+    position: static;
     display: none;
-    overflow: hidden;
-    text-align: center;
+    background-color: #fff;
+    box-shadow: none;
+    border-radius: 8px;
+    margin-top: 6px;
   }
 
   .dropdown-content.show {
     display: block;
-    animation: fadeIn 0.15s ease-in-out;
   }
 
   .dropdown-content a {
-    display: block;
-    padding: 10px 0;
+    text-align: center;
     border-bottom: 1px solid #ffe4ec;
   }
 
@@ -1433,8 +1428,9 @@ html, body {
     border-bottom: none;
   }
 
+  /* Mantém a seta branca mesmo ativa */
   .dropbtn.active::after {
     transform: rotate(180deg);
+    color: #fff;
   }
 }
-
