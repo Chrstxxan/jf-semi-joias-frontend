@@ -1294,7 +1294,8 @@ html, body {
 .dropdown {
   position: relative;
   display: inline-flex;
-  align-items: baseline; /* garante alinhamento perfeito com o texto "Início" */
+  align-items: center; /* alinhamento perfeito com os outros links */
+  vertical-align: middle;
 }
 
 .dropbtn {
@@ -1306,11 +1307,11 @@ html, body {
   font-size: 15px;
   transition: all 0.2s ease;
   display: inline-flex;
-  align-items: baseline; /* alinha texto e setinha na base */
+  align-items: center; /* texto + setinha centralizados */
   gap: 4px;
   padding: 0;
-  vertical-align: middle;
-  line-height: 1.2;
+  line-height: 1.1;
+  margin-top: -1px; /* ajuste fino de altura */
 }
 
 /* 🔻 Ícone da setinha */
@@ -1318,7 +1319,7 @@ html, body {
   content: "⌄";
   font-size: 11px;
   position: relative;
-  top: -1px; /* ajuste fino */
+  top: -1px;
   transition: transform 0.2s ease;
 }
 
@@ -1328,6 +1329,12 @@ html, body {
 }
 
 .dropbtn:hover {
+  color: #ff6fa7;
+  text-decoration: underline;
+}
+
+/* Mantém o texto colorido enquanto o mouse está no menu */
+.dropdown:hover .dropbtn {
   color: #ff6fa7;
   text-decoration: underline;
 }
@@ -1345,6 +1352,13 @@ html, body {
   animation: fadeIn 0.15s ease-in-out;
 }
 
+/* Mostra no hover (desktop) */
+.dropdown:hover .dropdown-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Links internos */
 .dropdown-content a {
   color: #ff4b8f;
   padding: 8px 16px;
@@ -1360,14 +1374,13 @@ html, body {
   color: #ff2f82;
 }
 
-/* Mostra o menu */
+/* Efeito suave */
 .dropdown-content.show {
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.15s ease-in-out;
 }
 
-/* Efeito de fechamento suave */
 .dropdown-content.fade-out {
   animation: fadeOut 0.1s ease-in-out;
 }
@@ -1399,14 +1412,17 @@ html, body {
 /* 📱 MOBILE - Menu Dropdown Toque */
 /* ============================= */
 @media (max-width: 768px) {
+  .dropdown {
+    width: 100%; /* ocupa toda a largura */
+  }
+
   .dropbtn {
     background-color: #ff6fa7;
     color: #fff;
     border-radius: 8px;
-    padding: 6px 14px;
-    width: auto;
-    min-width: unset;
-    display: inline-flex;
+    padding: 8px 14px;
+    width: 100%;
+    display: flex;
     justify-content: center;
     align-items: center;
     gap: 5px;
@@ -1414,21 +1430,25 @@ html, body {
 
   .dropbtn::after {
     color: #fff;
-    top: 0; /* centraliza melhor */
+    top: 0;
   }
 
   .dropbtn.active {
-    background-color: #ff4b8f; /* mantém cor uniforme ao abrir */
+    background-color: #ff4b8f;
     color: #fff;
   }
 
   .dropdown-content {
-    position: static;
+    position: relative;
+    top: 6px;
+    width: 100%;
     display: none;
     background-color: #fff;
     border-radius: 8px;
-    margin-top: 6px;
-    box-shadow: 0 2px 10px rgba(255, 111, 167, 0.15); /* sombra leve pra destacar */
+    margin-top: 4px;
+    box-shadow: 0 2px 10px rgba(255, 111, 167, 0.15);
+    overflow: hidden;
+    text-align: center;
   }
 
   .dropdown-content.show {
@@ -1436,8 +1456,10 @@ html, body {
   }
 
   .dropdown-content a {
-    text-align: center;
+    display: block;
+    padding: 10px 0;
     border-bottom: 1px solid #ffe4ec;
+    color: #ff4b8f;
   }
 
   .dropdown-content a:last-child {
