@@ -1430,11 +1430,19 @@ html, body {
     transition: background-color 0.25s ease, color 0.25s ease;
   }
 
+  /* 🔄 cor ativa ao abrir */
   .dropbtn.active {
     background-color: #ff4b8f;
   }
 
+  /* 🔁 garante que volte ao estado original após fechar */
+  .dropbtn:not(.active) {
+    background-color: #ff6fa7 !important;
+    color: #fff !important;
+  }
+
   .dropbtn::after {
+    content: "⌄";
     color: #fff;
     top: 1px;
     font-size: 13px;
@@ -1445,7 +1453,7 @@ html, body {
     transform: rotate(180deg);
   }
 
-  /* 💡 Aqui vem a mágica: dropdown ligeiramente afastado do botão */
+  /* 💡 dropdown posicionado abaixo do botão */
   .dropdown-content {
     position: absolute;
     top: calc(100% + 8px);
@@ -1457,16 +1465,17 @@ html, body {
     border-radius: 10px;
     width: 180px;
     overflow: hidden;
-    z-index: 9; /* < botão, pra que o botão continue clicável */
-    pointer-events: none; /* não bloqueia o clique enquanto oculto */
+    z-index: 9;
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.25s ease;
   }
 
+  /* ✨ aparece de forma suave */
   .dropdown-content.show {
     display: block;
     opacity: 1;
-    pointer-events: auto; /* só interage quando aberto */
+    pointer-events: auto;
     animation: fadeIn 0.25s ease-in-out;
   }
 
@@ -1481,9 +1490,10 @@ html, body {
     border-bottom: none;
   }
 
-  .dropbtn:not(.active) {
-    background-color: #ff6fa7;
-    color: #fff;
+  /* 🩷 corrige bug de cor ao fechar */
+  .dropbtn.active:has(+ .dropdown-content:not(.show)) {
+    background-color: #ff6fa7 !important;
   }
 }
+
 
