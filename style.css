@@ -1289,13 +1289,14 @@ html, body {
 }
 
 /* ============================= */
-/* 🔽 DROPDOWN DE CATEGORIAS */
+/* 🔽 DROPDOWN DE CATEGORIAS (Desktop fixado) */
 /* ============================= */
 .dropdown {
   position: relative;
-  display: inline-flex; /* garante alinhamento lateral com os outros itens */
-  align-items: center; /* centraliza verticalmente com “Início” */
+  display: inline-flex;
+  align-items: center; /* garante que "Início" e "Categorias" fiquem nivelados */
   vertical-align: middle;
+  overflow: visible; /* impede corte do dropdown */
 }
 
 .dropbtn {
@@ -1307,18 +1308,18 @@ html, body {
   font-size: 15px;
   transition: color 0.2s ease, transform 0.2s ease;
   display: inline-flex;
-  align-items: center;
+  align-items: center; /* centraliza texto e seta */
   gap: 5px;
-  line-height: 1;
   padding: 0;
+  line-height: 1;
 }
 
 /* 🔻 Ícone da setinha */
 .dropbtn::after {
   content: "⌄";
-  font-size: 13px;
+  font-size: 12px;
   position: relative;
-  top: -1px; /* sobe levemente pra alinhar com o texto */
+  top: -1px; /* sobe levemente pra alinhar */
   transition: transform 0.2s ease;
 }
 
@@ -1327,7 +1328,8 @@ html, body {
   transform: rotate(180deg);
 }
 
-.dropbtn:hover {
+.dropbtn:hover,
+.dropdown:hover .dropbtn {
   color: #ff6fa7;
   text-decoration: underline;
 }
@@ -1336,13 +1338,21 @@ html, body {
 .dropdown-content {
   display: none;
   position: absolute;
+  top: 100%; /* garante que fique logo abaixo, sem cortar */
+  left: 0;
   background-color: #fff;
-  min-width: 160px;
+  min-width: 170px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
-  z-index: 1000;
+  z-index: 9999; /* fica por cima de tudo */
   padding: 10px 0;
   animation: fadeIn 0.15s ease-in-out;
+}
+
+/* Mostra o menu ao passar o mouse (sem piscar) */
+.dropdown:hover .dropdown-content {
+  display: flex;
+  flex-direction: column;
 }
 
 .dropdown-content a {
