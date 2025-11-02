@@ -1293,7 +1293,9 @@ html, body {
 /* ============================= */
 .dropdown {
   position: relative;
-  display: inline-block;
+  display: inline-flex; /* garante alinhamento lateral com os outros itens */
+  align-items: center; /* centraliza verticalmente com “Início” */
+  vertical-align: middle;
 }
 
 .dropbtn {
@@ -1307,6 +1309,8 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  line-height: 1;
+  padding: 0;
 }
 
 /* 🔻 Ícone da setinha */
@@ -1314,7 +1318,7 @@ html, body {
   content: "⌄";
   font-size: 13px;
   position: relative;
-  top: 1px; /* alinhamento fino */
+  top: -1px; /* sobe levemente pra alinhar com o texto */
   transition: transform 0.2s ease;
 }
 
@@ -1395,24 +1399,40 @@ html, body {
 /* 📱 MOBILE - Menu Dropdown Toque */
 /* ============================= */
 @media (max-width: 768px) {
+  .dropdown {
+    display: inline-block;
+    width: auto; /* mantém lado a lado com Início */
+    text-align: center;
+  }
+
   .dropbtn {
     background-color: #ff6fa7;
-    color: #fff; /* deixa o texto branco */
+    color: #fff;
     border-radius: 8px;
     padding: 6px 12px;
+    width: auto; /* impede o botão de esticar demais */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
   }
 
   .dropbtn::after {
-    color: #fff; /* deixa a setinha branca também */
+    color: #fff;
+    top: 0;
   }
 
   .dropdown-content {
-    position: static;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%); /* centraliza o dropdown */
     display: none;
     background-color: #fff;
-    box-shadow: none;
-    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(255, 111, 167, 0.15);
+    border-radius: 10px;
     margin-top: 6px;
+    width: 180px; /* largura controlada */
   }
 
   .dropdown-content.show {
@@ -1428,7 +1448,6 @@ html, body {
     border-bottom: none;
   }
 
-  /* Mantém a seta branca mesmo ativa */
   .dropbtn.active::after {
     transform: rotate(180deg);
     color: #fff;
