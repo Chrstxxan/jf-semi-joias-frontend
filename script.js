@@ -527,6 +527,16 @@ function inicializarDropdown() {
         dropdownContent.classList.remove("show");
       }
     });
+
+    // ✨ NOVO: fecha automaticamente ao clicar em qualquer categoria
+    dropdownContent.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        isOpen = false;
+        novoDropbtn.classList.remove("active");
+        dropdownContent.classList.remove("show");
+      });
+    });
+
   } else {
     // 💻 DESKTOP → abre no hover (mantido igual)
     novoDropbtn.addEventListener("mouseenter", () => {
