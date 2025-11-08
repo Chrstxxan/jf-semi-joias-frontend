@@ -144,6 +144,8 @@
     <p>© 2025 JF Semi Joias - Todos os direitos reservados</p>
   </footer>
 
+  <script src="authFetch.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script>
@@ -270,22 +272,23 @@
       }
 
       try {
-        const res = await fetch(`${API}/payment/mp/preference`, {
+        const res = await authFetch(`${API}/payment/mp/preference`, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             itens: carrinho.map(p => ({
               produtoId: p._id,
               quantidade: p.quantidade || 1,
-              tamanho: p.tamanho || null // 👈 Envia o tamanho do anel
+              tamanho: p.tamanho || null
             })),
             enderecoEntrega,
             frete: valorFrete
           })
         });
+
+        if (!res) return;
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.erro || "Erro ao criar pagamento");

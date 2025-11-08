@@ -172,6 +172,9 @@
 </head>
 
 <body>
+
+  <script src="authFetch.js"></script>
+
   <script>
     // 🔒 Verifica se o admin está autenticado
     (function checkAuth() {
@@ -210,9 +213,9 @@
       const lista = document.getElementById("lista-pedidos");
 
       try {
-        const res = await fetch(`${API}/orders/all`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await authFetch(`${API}/orders/all`);
+          if (!res) return;
+
 
         if (!res.ok) {
           throw new Error("Falha ao buscar pedidos");
