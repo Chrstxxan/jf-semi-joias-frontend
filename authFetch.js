@@ -35,8 +35,13 @@ async function authFetch(url, options = {}) {
     if (!newToken) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
-      alert("Sua sessão expirou. Faça login novamente.");
-      window.location.href = "/login.html";
+      Swal.fire({
+        icon: "warning",
+        title: "Sessão expirada",
+        text: "Faça login novamente.",
+        confirmButtonColor: "#ff6fa7"
+    }).then(() => window.location.href = "login.html");
+
       return null;
     }
     options.headers.Authorization = `Bearer ${newToken}`;
