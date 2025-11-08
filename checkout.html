@@ -250,6 +250,9 @@
     // 💳 Pagar com Mercado Pago
     // ================================
     document.getElementById("btn-pagar").addEventListener("click", async () => {
+
+      await refreshToken();
+
       const enderecoEntrega = {
         nome: document.getElementById("nome").value,
         telefone: document.getElementById("telefone").value,
