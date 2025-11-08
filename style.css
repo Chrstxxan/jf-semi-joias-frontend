@@ -1496,4 +1496,20 @@ html, body {
   }
 }
 
+.info-parcelamento {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff7fb;
+  padding: 6px 10px;
+  border-radius: 8px;
+  width: fit-content;
+  margin-top: 5px;
+  font-weight: 600;
+  color: #ff4b8f;
+}
 
+.info-parcelamento .icone-cartao {
+  width: 22px;
+  height: auto;
+}
