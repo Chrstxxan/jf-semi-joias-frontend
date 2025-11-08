@@ -1,8 +1,7 @@
-// authFetch.js
 window.API = window.API || "https://jf-semi-joias-backend.onrender.com";
 
 async function refreshToken() {
-  const token = localStorage.getItem("token");
+  let token = localStorage.getItem("token");
   if (!token) return null;
 
   try {
@@ -14,6 +13,7 @@ async function refreshToken() {
     const data = await res.json();
     if (data.token) {
       localStorage.setItem("token", data.token);
+      token = data.token;
       return data.token;
     }
     return null;
@@ -41,6 +41,14 @@ async function authFetch(url, options = {}) {
     }
     options.headers.Authorization = `Bearer ${newToken}`;
     res = await fetch(url, options);
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("role");
+      alert("Sessão inválida. Faça login novamente.");
+      window.location.href = "/login.html";
+      return null;
+    }
   }
 
   return res;

@@ -283,7 +283,7 @@
       }
 
       try {
-        const res = await fetch(`${API}/orders/${id}/rastreio`, {
+        const res = await authFetch(`${API}/orders/${id}/rastreio`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -325,7 +325,7 @@
       if (!novoStatus) return;
 
       try {
-        const res = await fetch(`${API}/orders/${id}/status`, {
+        const res = await authFetch(`${API}/orders/${id}/status`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
