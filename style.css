@@ -1494,9 +1494,9 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   margin: 8px auto 0;
-  padding: 10px 14px;
+  padding: 6px 16px;
   background: #ffe6f1;
   color: #333;
   border-radius: 999px;
@@ -1505,6 +1505,10 @@ html, body {
   box-shadow: 0 1px 4px rgba(0,0,0,.06);
   font-size: clamp(12px, 1.8vw, 14px);
   text-align: center;
+}
+
+.info-pill span{
+white-space: nowrap;
 }
 
 .info-pill b {
