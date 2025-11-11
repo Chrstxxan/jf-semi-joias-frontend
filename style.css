@@ -1513,3 +1513,39 @@ html, body {
   width: 22px;
   height: auto;
 }
+
+/* ============================
+   BENEFÍCIOS DO HEADER
+   segue o mesmo visual da garantia-top
+============================ */
+.beneficios-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .7rem;
+  margin: 6px auto 0;
+  padding: 8px 14px;
+  background: #ffe6f1;        /* mesmo rosa clarinho */
+  color: #333;
+  border-radius: 999px;       /* estilo pílula */
+  width: fit-content;
+  max-width: 92vw;            /* não estoura no mobile */
+  font-size: clamp(11px, 1.7vw, 13px);
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  flex-wrap: wrap;            /* se faltar espaço, quebra bonitinho */
+}
+
+.beneficios-header span {
+  white-space: nowrap;        /* evita quebra feia dentro de cada item */
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 360px) {
+  .beneficios-header {
+    padding: 6px 10px;
+    font-size: 11px;
+    gap: .4rem;
+  }
+}
