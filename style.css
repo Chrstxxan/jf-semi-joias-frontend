@@ -1514,4 +1514,33 @@ html, body {
   height: auto;
 }
 
+.info-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 8px auto 0;
+  padding: 10px 14px;
+  background: #ffe6f1;
+  color: #333;
+  border-radius: 999px;
+  width: fit-content;
+  max-width: 92vw;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  font-size: clamp(12px, 1.8vw, 14px);
+  text-align: center;
+}
+
+.info-pill b {
+  font-weight: 700;
+}
+
+/* mobile still clean */
+@media (max-width: 360px) {
+  .info-pill {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}
 
