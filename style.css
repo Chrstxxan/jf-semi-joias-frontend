@@ -1496,40 +1496,31 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  margin: 6px auto 10px;            /* espaço controlado embaixo */
-  padding: 6px 14px;                /* pílula mais fina */
+  margin: 6px auto 10px;
+  padding: 6px 16px;
   background: #ffe6f1;
   color: #333;
   border-radius: 999px;
-  max-width: 92vw;                  /* não estoura na viewport */
-  width: calc(100% - 48px);         /* deixa margem para botões à direita */
+  width: fit-content;          /* <<< centraliza de verdade */
+  max-width: 92vw;
   box-sizing: border-box;
   font-size: clamp(11px, 1.7vw, 13px);
   text-align: center;
   line-height: 1.2;
   box-shadow: 0 1px 4px rgba(0,0,0,.05);
-  position: relative;               /* mantém dentro do fluxo */
-  z-index: 1;                       /* abaixo dos botões (se necessário) */
 }
 
-/* permitir quebra natural do texto — evita overflow horizontal */
 .info-pill span {
-  white-space: normal;              /* ← IMPORTANTÍSSIMO: permite quebra */
+  white-space: nowrap;
   overflow-wrap: anywhere;
   display: block;
 }
 
-/* se os botões flutuantes estiverem cobrindo a pílula, empurra o header um pouco */
-header {
-  padding-right: 70px;              /* ajuste se seus botões ocuparem mais/menos */
-}
-
-/* MOBILE: deixa ainda mais compacto em telas pequenas */
 @media (max-width: 420px) {
   .info-pill {
-    padding: 5px 10px;
-    width: calc(100% - 40px);
+    padding: 5px 12px;
     font-size: 11px;
   }
 }
+
 
