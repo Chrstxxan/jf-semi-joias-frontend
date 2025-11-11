@@ -1511,8 +1511,10 @@ html, body {
 }
 
 .info-pill span {
-  white-space: nowrap;
-  overflow-wrap: anywhere;
+  white-space: normal;      /* permite quebra de linha dentro da pílula */
+  word-break: break-word;   /* quebra se a linha ficar muito larga */
+  text-align: center;
+  width: 100%;              /* mantém dentro do formato da pílula */
   display: block;
 }
 
