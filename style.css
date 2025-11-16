@@ -1552,3 +1552,31 @@ html, body {
   filter: brightness(0) invert(1); /* deixa branco */
   opacity: 0.9;
 }
+/* ===== CORREÇÃO APENAS PARA MOBILE ===== */
+@media (max-width: 480px) {
+
+  #faixa-bf {
+    padding: 12px 16px;
+    gap: 8px;
+
+    /* evita cortar nas laterais */
+    box-sizing: border-box;
+
+    /* permite quebrar elegantemente */
+    flex-wrap: nowrap;
+  }
+
+  #faixa-bf span {
+    white-space: normal;     /* deixa quebrar de forma natural */
+    text-align: center;
+    line-height: 1.2;
+    display: inline-block;
+    max-width: 80%;          /* impede que o texto “estoure” a faixa */
+  }
+
+  #faixa-bf .icon-bf {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;          /* impede o ícone de deformar */
+  }
+}
