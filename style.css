@@ -1525,4 +1525,30 @@ html, body {
   }
 }
 
+#faixa-bf {
+  width: 100%;
+  background: linear-gradient(90deg, #ff6fa7, #ff89bb);
+  color: #fff;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  border-bottom: 2px solid rgba(255,255,255,0.4);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#faixa-bf .icon-bf {
+  width: 22px;
+  height: 22px;
+  filter: brightness(0) invert(1); /* deixa branco */
+  opacity: 0.9;
+}
