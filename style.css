@@ -1701,6 +1701,29 @@ html, body {
 }
 
 /* ============================
+   💎 PREÇO — DESKTOP (premium)
+   ============================ */
+.preco-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.preco-atual {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #ff4b8f;
+  margin-bottom: 4px;
+}
+
+.preco-antigo {
+  font-size: 1.1rem;
+  color: #777;
+  text-decoration: line-through;
+}
+
+/* ============================
    📱 AJUSTES MOBILE – PREÇO + PARCELAMENTO
    ============================ */
 @media (max-width: 480px) {
