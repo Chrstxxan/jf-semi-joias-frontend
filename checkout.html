@@ -206,7 +206,19 @@
           <div>
             <span>${p.nome}</span>
             ${p.tamanho ? `<p><b>Tamanho:</b> ${p.tamanho}</p>` : ""}
-            <small>R$ ${p.preco.toFixed(2)}</small>
+            ${window.PROMO?.active
+  ? `
+      <small><b>R$ ${aplicarDesconto(p.preco).toFixed(2)}</b></small>
+      <br>
+      <small style="color:#999;text-decoration:line-through;">
+        De R$ ${p.preco.toFixed(2)}
+      </small>
+    `
+  : `
+      <small>R$ ${p.preco.toFixed(2)}</small>
+    `
+}
+
           </div>
         </div>
       `).join("");
