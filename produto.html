@@ -145,118 +145,157 @@
       return params.get("id");
     }
 
-    async function carregarProduto() {
-      const id = pegarIdProduto();
-      const detalheContainer = document.getElementById("produto-detalhe");
+async function carregarProduto() {
+  const id = pegarIdProduto();
+  const detalheContainer = document.getElementById("produto-detalhe");
 
-      try {
-        const resposta = await fetch(`${API}/produtos/${id}`);
-        const produto = await resposta.json();
-        produtoGlobal = produto;
+  try {
+    const resposta = await fetch(`${API}/produtos/${id}`);
+    const produto = await resposta.json();
+    produtoGlobal = produto;
 
-        if (!produto || !produto.nome) {
-          detalheContainer.innerHTML = "<p>Produto não encontrado.</p>";
+    if (!produto || !produto.nome) {
+      detalheContainer.innerHTML = "<p>Produto não encontrado.</p>";
+      return;
+    }
+
+    imagens = produto.imagens || [];
+    indiceAtual = 0;
+
+    const temTamanhos =
+      (produto.categoria === "aneis") &&
+      Array.isArray(produto.tamanhosDisponiveis) &&
+      produto.tamanhosDisponiveis.length;
+
+    /////////////////////////////////
+    // INÍCIO BLACK FRIDAY – preço na página de produto
+    /////////////////////////////////
+    const precoOriginal = Number(produto.preco || 0);
+    const precoPromo = window.aplicarDesconto
+      ? window.aplicarDesconto(precoOriginal)
+      : precoOriginal;
+
+    const precoDetalheHTML =
+      (window.PROMO && window.PROMO.active)
+        ? `
+            <p class="preco-detalhe" style="font-size:1.6rem; font-weight:700; color:#ff4b8f;">
+              R$ ${precoPromo.toFixed(2)}
+            </p>
+            <small style="color:#777; text-decoration:line-through; font-size:0.95rem;">
+              De R$ ${precoOriginal.toFixed(2)}
+            </small>
+          `
+        : `
+            <p class="preco-detalhe">
+              R$ ${precoOriginal.toFixed(2)}
+            </p>
+          `;
+    /////////////////////////////////
+    // FIM BLACK FRIDAY
+    /////////////////////////////////
+
+    detalheContainer.innerHTML = `
+      <div class="favorito-btn" id="favorito-detalhe" onclick="toggleFavoritoDetalhe()">
+        <img src="icons/star.svg" alt="Favoritar" />
+      </div>
+
+      <div class="carrossel-container">
+        <div class="carousel-track">
+          ${imagens.map((img) => `<img src="${img}" class="carousel-img">`).join("")}
+        </div>
+        <button id="prev">❮</button>
+        <button id="next">❯</button>
+      </div>
+
+      <h2>${produto.nome}</h2>
+      <p class="descricao">${produto.descricao || ""}</p>
+
+      ${precoDetalheHTML}
+
+      <div class="info-parcelamento">
+        <img src="./icons/card.svg" alt="Cartão" class="icone-cartao">
+        <span>Parcelamos em até 12x no cartão</span>
+      </div>
+
+      ${temTamanhos ? `
+        <div class="tamanhos-wrapper">
+          <button id="btn-escolher-tamanho" class="size-picker-btn" type="button">
+            <span>${tamanhoSelecionado ? "Tamanho: " : "Escolher tamanho"}</span>
+            <span class="value">${tamanhoSelecionado || ""}</span>
+          </button>
+          <div class="size-hint">Selecione o tamanho antes de comprar.</div>
+        </div>
+      ` : ""}
+
+      <button class="comprar-btn" id="btn-comprar">Comprar</button>
+    `;
+
+    // navegação galeria
+    document.getElementById("prev").onclick = () => mudarImagem(-1);
+    document.getElementById("next").onclick = () => mudarImagem(1);
+    ativarSwipe();
+    verificarFavorito(produto._id);
+
+    // dropdown / popup de tamanhos
+    if (temTamanhos) {
+      document.getElementById("btn-escolher-tamanho").addEventListener("click", () => {
+        abrirSeletorTamanho(produto.tamanhosDisponiveis).then((t) => {
+          if (!t) return;
+          tamanhoSelecionado = t;
+          const btn = document.getElementById("btn-escolher-tamanho");
+          btn.querySelector("span").textContent = "Tamanho: ";
+          btn.querySelector(".value").textContent = t;
+        });
+      });
+    }
+
+    // Comprar
+    document.getElementById("btn-comprar").addEventListener("click", async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        await Swal.fire({
+          icon: "warning",
+          title: "Faça login para comprar",
+          confirmButtonText: "Entrar",
+          showCancelButton: true,
+          confirmButtonColor: "#ff6fa7",
+        });
+        if (!localStorage.getItem("token")) {
+          window.location.href = "login.html";
           return;
         }
-
-        imagens = produto.imagens || [];
-        indiceAtual = 0;
-
-        const temTamanhos = (produto.categoria === "aneis") && Array.isArray(produto.tamanhosDisponiveis) && produto.tamanhosDisponiveis.length;
-
-        detalheContainer.innerHTML = `
-          <div class="favorito-btn" id="favorito-detalhe" onclick="toggleFavoritoDetalhe()">
-            <img src="icons/star.svg" alt="Favoritar" />
-          </div>
-
-          <div class="carrossel-container">
-            <div class="carousel-track">
-              ${imagens.map((img) => `<img src="${img}" class="carousel-img">`).join("")}
-            </div>
-            <button id="prev">❮</button>
-            <button id="next">❯</button>
-          </div>
-
-          <h2>${produto.nome}</h2>
-          <p class="descricao">${produto.descricao || ""}</p>
-          <p class="preco-detalhe">R$ ${Number(produto.preco || 0).toFixed(2)}</p>
-          <div class="info-parcelamento">
-            <img src="./icons/card.svg" alt="Cartão" class="icone-cartao">
-            <span>Parcelamos em até 12x no cartão</span>
-          </div>
-
-          ${temTamanhos ? `
-            <div class="tamanhos-wrapper">
-              <button id="btn-escolher-tamanho" class="size-picker-btn" type="button">
-                <span>${tamanhoSelecionado ? "Tamanho: " : "Escolher tamanho"}</span>
-                <span class="value">${tamanhoSelecionado || ""}</span>
-              </button>
-
-              <div class="size-hint">Selecione o tamanho antes de comprar.</div>
-            </div>
-          ` : ""}
-
-          <button class="comprar-btn" id="btn-comprar">Comprar</button>
-        `;
-
-        // navegação galeria
-        document.getElementById("prev").onclick = () => mudarImagem(-1);
-        document.getElementById("next").onclick = () => mudarImagem(1);
-        ativarSwipe();
-        verificarFavorito(produto._id);
-
-        // dropdown / popup de tamanhos
-        if (temTamanhos) {
-          document.getElementById("btn-escolher-tamanho").addEventListener("click", () => {
-            abrirSeletorTamanho(produto.tamanhosDisponiveis).then((t) => {
-              if (!t) return;
-              tamanhoSelecionado = t;
-              const btn = document.getElementById("btn-escolher-tamanho");
-              btn.querySelector("span").textContent = "Tamanho: ";
-              btn.querySelector(".value").textContent = t;
-            });
-          });
-        }
-
-        // Comprar
-        document.getElementById("btn-comprar").addEventListener("click", async () => {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            await Swal.fire({
-              icon: "warning",
-              title: "Faça login para comprar",
-              confirmButtonText: "Entrar",
-              showCancelButton: true,
-              confirmButtonColor: "#ff6fa7",
-            });
-            if (!localStorage.getItem("token")) {
-              window.location.href = "login.html";
-              return;
-            }
-          }
-
-          // se for anel, obrigar tamanho
-          if (produto.categoria === "aneis") {
-            if (!tamanhoSelecionado) {
-              const t = await abrirSeletorTamanho(produto.tamanhosDisponiveis);
-              if (!t) return;
-              tamanhoSelecionado = t;
-              const btn = document.getElementById("btn-escolher-tamanho");
-              if (btn) {
-                btn.querySelector("span").textContent = "Tamanho: ";
-                btn.querySelector(".value").textContent = t;
-              }
-            }
-          }
-
-          adicionarAoCarrinho(produto._id, produto.nome, produto.preco, produto.imagens?.[0] || "", 1, tamanhoSelecionado);
-        });
-
-      } catch (erro) {
-        console.error("Erro ao carregar produto:", erro);
-        detalheContainer.innerHTML = "<p>Erro ao carregar produto.</p>";
       }
-    }
+
+      // se for anel, obrigar tamanho
+      if (produto.categoria === "aneis") {
+        if (!tamanhoSelecionado) {
+          const t = await abrirSeletorTamanho(produto.tamanhosDisponiveis);
+          if (!t) return;
+          tamanhoSelecionado = t;
+          const btn = document.getElementById("btn-escolher-tamanho");
+          if (btn) {
+            btn.querySelector("span").textContent = "Tamanho: ";
+            btn.querySelector(".value").textContent = t;
+          }
+        }
+      }
+
+      adicionarAoCarrinho(
+        produto._id,
+        produto.nome,
+        precoPromo, // 👍 já manda com preço BF pro carrinho
+        produto.imagens?.[0] || "",
+        1,
+        tamanhoSelecionado
+      );
+    });
+
+  } catch (erro) {
+    console.error("Erro ao carregar produto:", erro);
+    detalheContainer.innerHTML = "<p>Erro ao carregar produto.</p>";
+  }
+}
+
 
     // Popup centralizado para tamanhos
     function abrirSeletorTamanho(tamanhos) {

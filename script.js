@@ -103,7 +103,7 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
 
     let produtosFiltrados = produtos;
 
-    // 🔍 Filtro de categoria (agora ignora acentos)
+    // 🔍 Filtro de categoria (ignora acentos)
     if (categoriaFiltro) {
       produtosFiltrados = produtosFiltrados.filter(p =>
         removerAcentos(p.categoria)?.toLowerCase() === removerAcentos(categoriaFiltro)?.toLowerCase()
@@ -129,16 +129,50 @@ async function carregarProdutos(categoriaFiltro = null, termoBusca = null) {
       card.className = 'produto';
       const primeiraImagem = (produto.imagens && produto.imagens[0]) ? produto.imagens[0] : 'icons/logo.png';
 
+      // ============================================
+      // INÍCIO BLACK FRIDAY – aplicar desconto na HOME
+      // ============================================
+      const precoOriginal = Number(produto.preco || 0);
+      const precoPromo = window.aplicarDesconto(precoOriginal);
+
+      const precoHTML = (window.PROMO && window.PROMO.active)
+        ? `
+            <p class="preco">
+              R$ ${precoPromo.toFixed(2)}
+              <br>
+              <small style="color:#777; text-decoration:line-through;">
+                De R$ ${precoOriginal.toFixed(2)}
+              </small>
+            </p>
+          `
+        : `
+            <p class="preco">
+              R$ ${precoOriginal.toFixed(2)}
+            </p>
+          `;
+      // ============================================
+      // FIM BLACK FRIDAY
+      // ============================================
+
       card.innerHTML = `
         <div class="favorito-btn" onclick="toggleFavorito('${produto._id}', this)">
           <img src="icons/star.svg" alt="Favoritar" />
         </div>
+
         <img src="${primeiraImagem}" alt="${produto.nome}" />
         <h3>${produto.nome}</h3>
-        <p class="preco">R$ ${Number(produto.preco || 0).toFixed(2)}</p>
+
+        ${precoHTML}
+
         <button onclick="verDetalhes('${produto._id}')">Ver Detalhes</button>
-        <button onclick="comprar('${produto._id}', '${produto.nome.replace(/'/g, "\\'")}', ${Number(produto.preco || 0)}, '${primeiraImagem.replace(/'/g, "\\'")}')">Comprar</button>
+        <button onclick="comprar(
+          '${produto._id}',
+          '${produto.nome.replace(/'/g, "\\'")}',
+          ${precoOriginal},
+          '${primeiraImagem.replace(/'/g, "\\'")}'
+        )">Comprar</button>
       `;
+
       produtosContainer.appendChild(card);
     });
 

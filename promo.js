@@ -15,3 +15,12 @@ window.PROMO = {
 ///////////////////////
 // FIM BLACK FRIDAY
 ///////////////////////
+
+// =======================
+// Função global de desconto
+// =======================
+window.aplicarDesconto = function (preco) {
+  if (!window.PROMO || !window.PROMO.active) return preco;
+  const final = preco * (1 - window.PROMO.discountPercentage / 100);
+  return Number(final.toFixed(2));
+};
