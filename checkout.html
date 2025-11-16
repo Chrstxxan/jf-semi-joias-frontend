@@ -367,10 +367,13 @@
           },
           body: JSON.stringify({
             itens: carrinho.map(p => ({
-              produtoId: p._id,
-              quantidade: p.quantidade || 1,
-              tamanho: p.tamanho || null
-            })),
+            produtoId: p._id,
+            quantidade: p.quantidade || 1,
+            tamanho: p.tamanho || null,
+            preco: window.PROMO?.active
+              ? aplicarDesconto(p.preco)
+              : p.preco
+          })),
             enderecoEntrega,
             frete: freteFinalParaEnvio // mudar de volta para valorFrete após a bf
           })
