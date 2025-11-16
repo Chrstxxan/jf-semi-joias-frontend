@@ -130,6 +130,8 @@
   <!-- Bibliotecas -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- ESQUENTA BF -->
+  <script src="promo.js"></script>
 
   <script>
     window.API = window.API || "https://jf-semi-joias-backend.onrender.com";
@@ -148,14 +150,49 @@
       }
 
       let total = 0;
+
+      /////////////////////// - REMOVER APÓS BF!!!!!!!!!
+      // INÍCIO BLACK FRIDAY – Aplicar desconto nos itens do carrinho
+      ///////////////////////
+      function aplicarDesconto(preco) {
+        if (!window.PROMO?.active) return preco;
+
+        const final = preco * (1 - window.PROMO.discountPercentage / 100);
+        return Number(final.toFixed(2));
+      }
+      ///////////////////////
+      // FIM BLACK FRIDAY
+      ///////////////////////
+
       carrinhoContainer.innerHTML = carrinho.map((item, index) => {
+        /////////////////////// - REMOVER APÓS A BF
+        // INÍCIO BLACK FRIDAY – aplicar desconto ao item
+        ///////////////////////
+        const precoComDesconto = aplicarDesconto(item.preco);
+        ///////////////////////
+        // FIM BLACK FRIDAY
+        ///////////////////////
         total += item.preco * (item.quantidade || 1);
         return `
           <div class="item-carrinho">
             <img src="${item.imagem}" alt="${item.nome}" />
             <div>
               <h3>${item.nome}</h3>
-              <p>R$ ${item.preco.toFixed(2)}</p>
+              /////////////////////// - nesse caso ir no onenote e voltar para o trecho de lá apos o fim da bf
+              // INÍCIO BLACK FRIDAY – Preço com desconto + preço riscado
+              ///////////////////////
+              <p>
+                R$ ${precoComDesconto.toFixed(2)}
+                ${window.PROMO?.active 
+                  ? `<br><small style="color:#999;text-decoration:line-through">
+                      De R$ ${item.preco.toFixed(2)}
+                    </small>`
+                  : ""}
+              </p>
+              ///////////////////////
+              // FIM BLACK FRIDAY
+              ///////////////////////
+
               ${item.tamanho ? `<p><b>Tamanho:</b> ${item.tamanho}</p>` : ""}
               <button onclick="confirmarRemocao(${index}, '${item.nome}')">Remover</button>
             </div>

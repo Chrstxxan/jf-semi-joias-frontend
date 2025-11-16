@@ -153,14 +153,39 @@
   <script src="authFetch.js"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+  <!-- ESQUENTA BF -->
+  <script src="promo.js"></script>
   <script>
     window.API = window.API || "https://jf-semi-joias-backend.onrender.com";
     const carrinho = JSON.parse(localStorage.getItem("carrinho")) || [];
     const token = localStorage.getItem("token");
 
     let valorFrete = 0;
+    /////////////////////// - REMOVER APÓS O FIM DA BF
+    // INÍCIO BLACK FRIDAY – helper de desconto
+    ///////////////////////
+    function aplicarDesconto(preco) {
+      if (!window.PROMO?.active) return preco;
+
+      const final = preco * (1 - window.PROMO.discountPercentage / 100);
+      return Number(final.toFixed(2));
+    }
+    ///////////////////////
+    // FIM BLACK FRIDAY
+    ///////////////////////
+
     let totalProdutos = carrinho.reduce((s, p) => s + (p.preco * (p.quantidade || 1)), 0);
+
+    /////////////////////// - REMOVER APÓS O FIM DA BF
+    // INÍCIO BLACK FRIDAY – recalcular total com desconto
+    ///////////////////////
+    let totalProdutosDescontado = carrinho.reduce((s, p) =>
+      s + aplicarDesconto(p.preco) * (p.quantidade || 1)
+    , 0);
+    ///////////////////////
+    // FIM BLACK FRIDAY
+    ///////////////////////
+
 
     // ================================
     // 🧺 Carrega resumo do carrinho
@@ -187,6 +212,21 @@
 
       document.getElementById("total-pedido").textContent =
         `Total produtos: R$ ${totalProdutos.toFixed(2)}`;
+
+        /////////////////////// - REMOVER APÓS O FIM DA BF
+        // INÍCIO BLACK FRIDAY – mostrar total com desconto
+        ///////////////////////
+        if (window.PROMO?.active) {
+          document.getElementById("total-pedido").innerHTML =
+            `Total produtos: <b>R$ ${totalProdutosDescontado.toFixed(2)}</b>
+            <br><small style="color:#999;text-decoration:line-through">
+              De R$ ${totalProdutos.toFixed(2)}
+            </small>`;
+        }
+        ///////////////////////
+        // FIM BLACK FRIDAY
+        ///////////////////////
+
     }
 
     // ================================
@@ -234,6 +274,17 @@
         const data = await res.json();
         valorFrete = parseFloat(data.Valor.replace(",", ".")) || 0;
 
+        /////////////////////// - REMOVER LOGO APÓS A BF
+        // INÍCIO BLACK FRIDAY – frete grátis
+        ///////////////////////
+        if (window.PROMO?.active && window.PROMO.freeShipping) {
+          console.log("🚚 Frete grátis ativado pela Black Friday!");
+          valorFrete = 0;
+        }
+        ///////////////////////
+        // FIM BLACK FRIDAY
+        ///////////////////////
+
         document.getElementById("frete-info").innerHTML =
           `Frete: R$ ${valorFrete.toFixed(2)} <span class="prazo">(${data.PrazoMedio} a ${data.PrazoMaximo} dias úteis)</span>`;
 
@@ -258,7 +309,7 @@
     document.getElementById("btn-pagar").addEventListener("click", async () => {
 
       await refreshToken();
-
+      
       const enderecoEntrega = {
         nome: document.getElementById("nome").value,
         telefone: document.getElementById("telefone").value,
@@ -280,6 +331,16 @@
         return;
       }
 
+      /////////////////////// - REMOVER APÓS O FIM DA BF  
+      // INÍCIO BLACK FRIDAY – garantir frete 0
+      ///////////////////////
+      const freteFinalParaEnvio = (window.PROMO?.active && window.PROMO.freeShipping)
+        ? 0
+        : valorFrete;
+      ///////////////////////
+      // FIM BLACK FRIDAY
+      ///////////////////////
+
       try {
         const res = await authFetch(`${API}/payment/mp/preference`, {
           method: "POST",
@@ -293,7 +354,7 @@
               tamanho: p.tamanho || null
             })),
             enderecoEntrega,
-            frete: valorFrete
+            frete: freteFinalParaEnvio //mudar de volta para valorFrete após a bf
           })
         });
 
