@@ -175,7 +175,14 @@ function carregarCarrinho() {
     // ❗ FIM BLACK FRIDAY
     /////////////////////////////////
 
-    total += item.preco * (item.quantidade || 1);
+    /////////////////////////////// - REMOVER DEPOISS
+    // INÍCIO BLACK FRIDAY – total com desconto
+    ///////////////////////////////
+    const subtotalComDesconto = precoComDesconto * (item.quantidade || 1);
+    total += subtotalComDesconto;
+    ///////////////////////////////
+    // FIM BLACK FRIDAY
+    ///////////////////////////////
 
     return `
       <div class="item-carrinho">

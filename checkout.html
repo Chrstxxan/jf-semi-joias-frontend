@@ -174,18 +174,19 @@
     // FIM BLACK FRIDAY
     ///////////////////////
 
-    let totalProdutos = carrinho.reduce((s, p) => s + (p.preco * (p.quantidade || 1)), 0);
-
-    /////////////////////// - REMOVER APÓS O FIM DA BF
-    // INÍCIO BLACK FRIDAY – recalcular total com desconto
-    ///////////////////////
-    let totalProdutosDescontado = carrinho.reduce((s, p) =>
-      s + aplicarDesconto(p.preco) * (p.quantidade || 1)
-    , 0);
-    ///////////////////////
-    // FIM BLACK FRIDAY
-    ///////////////////////
-
+    let totalProdutos = carrinho.reduce((s, p) => {
+      ///////////////////////////////
+      // INÍCIO BLACK FRIDAY – total com desconto
+      ///////////////////////////////
+      const precoComDesconto = window.aplicarDesconto
+        ? window.aplicarDesconto(p.preco)
+        : p.preco;
+      const subtotal = precoComDesconto * (p.quantidade || 1);
+      return s + subtotal;
+      ///////////////////////////////
+      // FIM BLACK FRIDAY
+      ///////////////////////////////
+    }, 0);
 
     // ================================
     // 🧺 Carrega resumo do carrinho
@@ -213,21 +214,21 @@
       document.getElementById("total-pedido").textContent =
         `Total produtos: R$ ${totalProdutos.toFixed(2)}`;
 
-        /////////////////////// - REMOVER APÓS O FIM DA BF
-        // INÍCIO BLACK FRIDAY – mostrar total com desconto
-        ///////////////////////
-        if (window.PROMO?.active) {
-          document.getElementById("total-pedido").innerHTML =
-            `Total produtos: <b>R$ ${totalProdutosDescontado.toFixed(2)}</b>
-            <br><small style="color:#999;text-decoration:line-through">
-              De R$ ${totalProdutos.toFixed(2)}
-            </small>`;
-        }
-        ///////////////////////
-        // FIM BLACK FRIDAY
-        ///////////////////////
+      ///////////////////////////////
+      // INÍCIO BLACK FRIDAY – mostrar riscado
+      ///////////////////////////////
+      if (window.PROMO?.active) {
+        const totalOriginal = carrinho.reduce((s, p) => s + p.preco * (p.quantidade || 1), 0);
 
-    }
+        document.getElementById("total-pedido").innerHTML =
+          `Total produtos: <b>R$ ${totalProdutos.toFixed(2)}</b>
+          <br><small style="color:#999;text-decoration:line-through">
+            De R$ ${totalOriginal.toFixed(2)}
+          </small>`;
+      }
+      ///////////////////////////////
+      // FIM BLACK FRIDAY
+      ///////////////////////////////
 
     // ================================
     // 🔍 Busca endereço via CEP (ViaCEP)
