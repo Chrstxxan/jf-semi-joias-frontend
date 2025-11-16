@@ -186,18 +186,17 @@ async function carregarProduto() {
     const precoDetalheHTML =
       (window.PROMO && window.PROMO.active)
         ? `
-            <p class="preco-detalhe" style="font-size:1.6rem; font-weight:700; color:#ff4b8f;">
-              R$ ${precoPromo.toFixed(2)}
-            </p>
-            <small style="color:#777; text-decoration:line-through; font-size:0.95rem;">
-              De R$ ${precoOriginal.toFixed(2)}
-            </small>
-          `
+          <div class="preco-container">
+            <p class="preco-atual">R$ ${precoPromo.toFixed(2)}</p>
+            <span class="preco-antigo">De R$ ${precoOriginal.toFixed(2)}</span>
+          </div>
+        `
         : `
-            <p class="preco-detalhe">
-              R$ ${precoOriginal.toFixed(2)}
-            </p>
-          `;
+          <div class="preco-container">
+            <p class="preco-atual">R$ ${precoOriginal.toFixed(2)}</p>
+          </div>
+        `;
+
     /////////////////////////////////
     // FIM BLACK FRIDAY
     /////////////////////////////////

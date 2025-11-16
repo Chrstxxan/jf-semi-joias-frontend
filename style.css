@@ -1634,3 +1634,110 @@ html, body {
     display: inline-block;
   }
 }
+
+/* ============================================
+   🔥 PREMIUM MODE ON — acabamento de luxo
+   ============================================ */
+
+/* Gradiente mais profundo */
+#faixa-bf {
+  background: linear-gradient(90deg, #ff5f9b, #ff6fa7, #ff89c4);
+  background-size: 300% 300%;
+  animation: bfFade 1.2s ease-out both, bfGradient 8s ease infinite;
+  border-bottom: 1px solid rgba(255,255,255,0.35);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  position: relative;
+  overflow: hidden; /* necessário para o shine */
+}
+
+/* ✨ SHINE — brilho passando */
+#faixa-bf::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -120%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255,255,255,0.25) 50%,
+    transparent 100%
+  );
+  filter: blur(12px);
+  animation: bfShine 6s infinite ease-in-out;
+}
+
+/* Glow suave nas bordas (bem premium) */
+#faixa-bf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: inset 0 0 12px rgba(255,255,255,0.18);
+}
+
+/* 🌈 Gradiente animado (premium) */
+@keyframes bfGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ✨ Shine elegante */
+@keyframes bfShine {
+  0%   { left: -120%; }
+  40%  { left: 130%; }
+  100% { left: 130%; }
+}
+
+/* Desktop: leve upscale pra dar presença */
+@media (min-width: 481px) {
+  #faixa-bf .titulo, 
+  #faixa-bf .sub {
+    text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+}
+
+/* ============================
+   📱 AJUSTES MOBILE – PREÇO + PARCELAMENTO
+   ============================ */
+@media (max-width: 480px) {
+
+  /* PREÇO EM COLUNA */
+  .preco-container {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 4px !important;
+  }
+
+  .preco-atual {
+    font-size: 1.9rem !important;
+    font-weight: 700;
+    color: #ff4b8f;
+  }
+
+  .preco-antigo {
+    font-size: 1rem !important;
+    text-decoration: line-through;
+    color: #888;
+  }
+
+  /* CENTRALIZAR A FAIXA DE PARCELAMENTO */
+  .info-parcelamento {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 6px;
+    margin: 0 auto !important;
+    text-align: center !important;
+  }
+
+  .info-parcelamento span {
+    display: inline-block;
+    text-align: center;
+  }
+}
