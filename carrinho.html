@@ -136,75 +136,80 @@
   <script>
     window.API = window.API || "https://jf-semi-joias-backend.onrender.com";
 
-    // ================================
-    // 🧺 Carrega produtos do carrinho
-    // ================================
-    function carregarCarrinho() {
-      const carrinhoContainer = document.getElementById('carrinho-container');
-      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+// ================================
+// 🧺 Carrega produtos do carrinho
+// ================================
+function carregarCarrinho() {
+  const carrinhoContainer = document.getElementById('carrinho-container');
+  const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
-      if (carrinho.length === 0) {
-        carrinhoContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
-        document.getElementById("contador-carrinho").textContent = 0;
-        return;
-      }
+  if (carrinho.length === 0) {
+    carrinhoContainer.innerHTML = '<p>Seu carrinho está vazio.</p>';
+    document.getElementById("contador-carrinho").textContent = 0;
+    return;
+  }
 
-      let total = 0;
+  let total = 0;
 
-      /////////////////////// - REMOVER APÓS BF!!!!!!!!!
-      // INÍCIO BLACK FRIDAY – Aplicar desconto nos itens do carrinho
-      ///////////////////////
-      function aplicarDesconto(preco) {
-        if (!window.PROMO?.active) return preco;
+  /////////////////////////////////
+  // ❗ INÍCIO BLACK FRIDAY
+  // Função interna — aplica desconto no carrinho
+  /////////////////////////////////
+  function aplicarDesconto(preco) {
+    if (!window.PROMO?.active) return preco;
 
-        const final = preco * (1 - window.PROMO.discountPercentage / 100);
-        return Number(final.toFixed(2));
-      }
-      ///////////////////////
-      // FIM BLACK FRIDAY
-      ///////////////////////
+    const final = preco * (1 - window.PROMO.discountPercentage / 100);
+    return Number(final.toFixed(2));
+  }
+  /////////////////////////////////
+  // ❗ FIM BLACK FRIDAY
+  /////////////////////////////////
 
-      carrinhoContainer.innerHTML = carrinho.map((item, index) => {
-        /////////////////////// - REMOVER APÓS A BF
-        // INÍCIO BLACK FRIDAY – aplicar desconto ao item
-        ///////////////////////
-        const precoComDesconto = aplicarDesconto(item.preco);
-        ///////////////////////
-        // FIM BLACK FRIDAY
-        ///////////////////////
-        total += item.preco * (item.quantidade || 1);
-        return `
-          <div class="item-carrinho">
-            <img src="${item.imagem}" alt="${item.nome}" />
-            <div>
-              <h3>${item.nome}</h3>
-              /////////////////////// - nesse caso ir no onenote e voltar para o trecho de lá apos o fim da bf
-              // INÍCIO BLACK FRIDAY – Preço com desconto + preço riscado
-              ///////////////////////
-              <p>
-                R$ ${precoComDesconto.toFixed(2)}
-                ${window.PROMO?.active 
-                  ? `<br><small style="color:#999;text-decoration:line-through">
-                      De R$ ${item.preco.toFixed(2)}
-                    </small>`
-                  : ""}
-              </p>
-              ///////////////////////
-              // FIM BLACK FRIDAY
-              ///////////////////////
+  carrinhoContainer.innerHTML = carrinho.map((item, index) => {
 
-              ${item.tamanho ? `<p><b>Tamanho:</b> ${item.tamanho}</p>` : ""}
-              <button onclick="confirmarRemocao(${index}, '${item.nome}')">Remover</button>
-            </div>
-          </div>
-        `;
-      }).join('') + `
-        <h2>Total: R$ ${total.toFixed(2)}</h2>
-      `;
+    /////////////////////////////////
+    // ❗ INÍCIO BLACK FRIDAY — calcular preço com desconto
+    /////////////////////////////////
+    const precoComDesconto = aplicarDesconto(item.preco);
+    /////////////////////////////////
+    // ❗ FIM BLACK FRIDAY
+    /////////////////////////////////
 
-      // Atualiza contador no topo
-      document.getElementById("contador-carrinho").textContent = carrinho.length;
-    }
+    total += item.preco * (item.quantidade || 1);
+
+    return `
+      <div class="item-carrinho">
+        <img src="${item.imagem}" alt="${item.nome}" />
+        <div>
+          <h3>${item.nome}</h3>
+
+          ${window.PROMO?.active ? `
+            <p>
+              R$ ${precoComDesconto.toFixed(2)}
+              <br>
+              <small style="color:#999; text-decoration:line-through">
+                De R$ ${item.preco.toFixed(2)}
+              </small>
+            </p>
+          ` : `
+            <p>R$ ${item.preco.toFixed(2)}</p>
+          `}
+
+          ${item.tamanho ? `<p><b>Tamanho:</b> ${item.tamanho}</p>` : ""}
+
+          <button onclick="confirmarRemocao(${index}, '${item.nome}')">
+            Remover
+          </button>
+        </div>
+      </div>
+    `;
+  }).join('') + `
+    <h2>Total: R$ ${total.toFixed(2)}</h2>
+  `;
+
+  // Atualiza contador
+  document.getElementById("contador-carrinho").textContent = carrinho.length;
+}
 
     // ================================
     // 🗑️ Confirmar remoção
