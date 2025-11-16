@@ -1559,7 +1559,7 @@ html, body {
   #faixa-bf {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     padding: 12px 14px;
     gap: 10px;
     box-sizing: border-box;
@@ -1591,3 +1591,46 @@ html, body {
   }
 }
 
+/* ===========================================
+   ANIMAÇÕES: Fade no banner + pulse + slide
+   =========================================== */
+
+/* Fade suave do banner ao carregar */
+#faixa-bf {
+  animation: bfFade 1.2s ease-in-out both;
+}
+
+@keyframes bfFade {
+  0% { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Pulse nos ícones */
+@keyframes bfPulse {
+  0%   { transform: scale(1); opacity: 1; }
+  50%  { transform: scale(1.18); opacity: 0.92; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Slide vertical suave nos textos */
+@keyframes bfSlide {
+  0%   { transform: translateY(1px); }
+  50%  { transform: translateY(-1px); }
+  100% { transform: translateY(1px); }
+}
+
+/* Ativa animações SÓ no mobile */
+@media (max-width: 480px) {
+
+  /* Ícones pulsando */
+  #faixa-bf .icon-bf {
+    animation: bfPulse 1.9s infinite ease-in-out;
+  }
+
+  /* Títulos com slide elegante */
+  #faixa-bf .titulo,
+  #faixa-bf .sub {
+    animation: bfSlide 3s infinite ease-in-out;
+    display: inline-block;
+  }
+}
