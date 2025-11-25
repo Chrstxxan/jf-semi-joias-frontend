@@ -1765,20 +1765,3 @@ html, body {
   }
 }
 
-.footer-links {
-    list-style: none; /* Remove os marcadores da lista */
-    display: flex; /* Habilita o layout flexbox */
-    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
-    justify-content: center; /* Centraliza os itens horizontalmente */
-    gap: 15px; /* Espaçamento entre os links */
-}
-
-.footer-links a {
-    color: var(--secondary-color); /* Cor do link */
-    text-decoration: none; /* Remove o sublinhado */
-    transition: color 0.2s; /* Transição suave para a cor */
-}
-
-.footer-links a:hover {
-    color: var(--accent-color); /* Muda a cor do link ao passar o mouse (variável não definida) */
-}
