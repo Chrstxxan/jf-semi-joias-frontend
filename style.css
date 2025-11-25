@@ -1779,17 +1779,22 @@ html, body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #fff;
+  color: #000;
   text-decoration: none;
   font-weight: 600;
+  transition: 0.2s ease;
 }
 
 .instagram-link:hover {
-  opacity: 0.8; /* vibe premium */
+  color: #ff6fa7;
 }
 
 .insta-icon {
   width: 20px;
   height: 20px;
-  filter: brightness(0) invert(1); /* deixa branco mesmo se o SVG for preto */
+  transition: 0.2s ease;
+}
+
+.instagram-link:hover .insta-icon {
+  filter: invert(69%) sepia(43%) saturate(902%) hue-rotate(292deg) brightness(103%) contrast(101%);
 }
