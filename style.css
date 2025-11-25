@@ -1765,3 +1765,31 @@ html, body {
   }
 }
 
+.footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 10px 0;
+}
+
+.footer-links li {
+  display: inline-block;
+}
+
+.instagram-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.instagram-link:hover {
+  opacity: 0.8; /* vibe premium */
+}
+
+.insta-icon {
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(1); /* deixa branco mesmo se o SVG for preto */
+}
