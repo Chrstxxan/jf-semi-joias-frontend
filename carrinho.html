@@ -232,6 +232,54 @@ function carregarCarrinho() {
 
   // Atualiza contador
   document.getElementById("contador-carrinho").textContent = carrinho.length;
+
+  // ================================
+  // 💳 Finalizar compra → vai pro checkout
+  // (CORREÇÃO: só adiciona o listener após o botão existir)
+  // ================================
+  const botao = document.getElementById('finalizar-compra');
+  if (botao) {
+    botao.addEventListener('click', () => {
+      const token = localStorage.getItem('token');
+      const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
+
+      if (!carrinho.length) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Carrinho vazio!',
+          text: 'Adicione produtos antes de finalizar a compra.',
+          confirmButtonColor: '#ff6fa7'
+        });
+        return;
+      }
+
+      if (!token) {
+        Swal.fire({
+          icon: 'info',
+          title: 'Você precisa estar logado',
+          text: 'Entre na sua conta antes de continuar.',
+          confirmButtonText: 'Fazer login',
+          confirmButtonColor: '#ff6fa7'
+        }).then(() => window.location.href = 'login.html');
+        return;
+      }
+
+      Swal.fire({
+        title: 'Ir para o checkout?',
+        html: `<p>Você tem <b>${carrinho.length}</b> item(s) no carrinho.</p>`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Continuar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#ff6fa7',
+        cancelButtonColor: '#aaa',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = 'checkout.html';
+        }
+      });
+    });
+  }
 }
 
     // ================================
@@ -283,7 +331,7 @@ function carregarCarrinho() {
     // ================================
     // 💳 Finalizar compra → vai pro checkout
     // ================================
-    document.getElementById('finalizar-compra').addEventListener('click', () => {
+    /*document.getElementById('finalizar-compra').addEventListener('click', () => {
       const token = localStorage.getItem('token');
       const carrinho = JSON.parse(localStorage.getItem('carrinho')) || [];
 
@@ -322,7 +370,7 @@ function carregarCarrinho() {
           window.location.href = 'checkout.html';
         }
       });
-    });
+    });*/
 
     // ================================
     // 🚀 Inicialização
