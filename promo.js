@@ -4,7 +4,7 @@
 ///////////////////////
 
 window.PROMO = {
-  active: true,              // ligar/desligar promo
+  active: false,              // ligar/desligar promo
   discountPercentage: 30,    // Esquenta Black Friday (20%)
   freeShipping: true        // Esquenta não tem frete grátis
 };
